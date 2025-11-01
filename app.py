@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import plotly.express as px
 from datetime import datetime
+from streamlit_js_eval import streamlit_js_eval
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
@@ -13,6 +14,8 @@ if 'selected_filter' not in st.session_state:
     st.session_state.selected_filter = 'All'
 if 'clicked_metric' not in st.session_state:
     st.session_state.clicked_metric = None
+if 'do_scroll' not in st.session_state:
+    st.session_state.do_scroll = False
 
 # Theme colors
 def get_theme():
@@ -22,28 +25,11 @@ def get_theme():
 
 t = get_theme()
 
-# Add scroll script if filter was clicked
-scroll_script = ""
-if st.session_state.clicked_metric:
-    scroll_script = """
-    <script>
-    setTimeout(function() {
-        const element = window.parent.document.querySelector('[data-testid="stMarkdownContainer"]');
-        const allElements = window.parent.document.querySelectorAll('[data-testid="stMarkdownContainer"]');
-        allElements.forEach((el) => {
-            if (el.textContent.includes('Student Data Explorer')) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    }, 100);
-    </script>
-    """
-
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 * {{ font-family: 'Inter', sans-serif; }}
-.stApp {{ background: {t['bg']}; scroll-behavior: smooth; }}
+.stApp {{ background: {t['bg']}; }}
 
 @keyframes fadeInUp {{
     from {{ opacity: 0; transform: translateY(30px); }}
@@ -92,7 +78,6 @@ h2 {{
     animation: fadeInUp 0.7s ease;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
 }}
 
 [data-testid="stMetric"]::before {{
@@ -150,7 +135,6 @@ h2 {{
 
 #MainMenu, footer, header {{ visibility: hidden; }}
 </style>
-{scroll_script}
 """, unsafe_allow_html=True)
 
 st.markdown("""
@@ -242,7 +226,7 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click buttons to filter and scroll to Student Data")
+    st.caption("👆 Click buttons to filter and scroll to data")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
@@ -256,6 +240,7 @@ if df is not None and model is not None:
         if st.button("📚 View All", key="m1", use_container_width=True):
             st.session_state.selected_filter = 'All'
             st.session_state.clicked_metric = 'Total Students (All 40)'
+            st.session_state.do_scroll = True
             st.rerun()
     
     with col2:
@@ -263,6 +248,7 @@ if df is not None and model is not None:
         if st.button("⚠️ Show At Risk", key="m2", use_container_width=True):
             st.session_state.selected_filter = 'At Risk'
             st.session_state.clicked_metric = f'At Risk Students ({anomaly_count})'
+            st.session_state.do_scroll = True
             st.rerun()
     
     with col3:
@@ -270,6 +256,7 @@ if df is not None and model is not None:
         if st.button("🔴 Show Below", key="m3", use_container_width=True):
             st.session_state.selected_filter = 'Below Threshold'
             st.session_state.clicked_metric = f'Below Threshold ({custom_risk_count})'
+            st.session_state.do_scroll = True
             st.rerun()
     
     with col4:
@@ -277,6 +264,7 @@ if df is not None and model is not None:
         if st.button("✅ Show Active", key="m4", use_container_width=True):
             st.session_state.selected_filter = 'Active'
             st.session_state.clicked_metric = f'Active Students ({active_count})'
+            st.session_state.do_scroll = True
             st.rerun()
     
     with col5:
@@ -285,6 +273,7 @@ if df is not None and model is not None:
         if st.button("📊 Above Avg", key="m5", use_container_width=True):
             st.session_state.selected_filter = 'Above Average'
             st.session_state.clicked_metric = f'Above Average ({above_avg})'
+            st.session_state.do_scroll = True
             st.rerun()
     
     # Quick Insights
@@ -363,6 +352,11 @@ if df is not None and model is not None:
     
     # Student Data Explorer
     st.markdown("## 📋 Student Data Explorer")
+    
+    # SCROLL TRIGGER
+    if st.session_state.do_scroll:
+        streamlit_js_eval(js_expressions="window.scrollTo(0, document.body.scrollHeight);", key=f"scroll_{datetime.now().timestamp()}")
+        st.session_state.do_scroll = False
     
     if st.session_state.clicked_metric:
         st.success(f"✨ **Showing:** {st.session_state.clicked_metric}")
