@@ -1,128 +1,218 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import plotly.express as px
+import numpy as np
 import mysql.connector
+import plotly.express as px
+import plotly.graph_objects as go
 
-# -----------------------------
-# 🎓 PAGE CONFIG
-# -----------------------------
+# Page Configuration
 st.set_page_config(
-    page_title="EngageSense — Student Engagement Dashboard",
-    page_icon="🎓",
-    layout="wide",
+    page_title="EngageSense Analytics",
+    page_icon="📊",
+    layout="wide"
 )
 
-# -----------------------------
-# 💅 CUSTOM STYLING
-# -----------------------------
+# Custom CSS
 st.markdown("""
     <style>
-        body { background-color: #0E1117; color: white; }
-        .main { background-color: #0E1117; }
-        h1, h2, h3 { color: #FF4B4B; }
-        .stMetric { background-color: #1E222A; border-radius: 10px; padding: 10px; }
-        footer {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
+    .main { padding: 0rem 1rem; }
+    h1 { color: #1f77b4; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🎓 EngageSense — Student Engagement Analytics (Demo)")
-st.markdown("#### _AI-Powered Insights into Student Activity_")
-st.divider()
+# Header
+st.markdown("# 📊 EngageSense — Student Engagement Analytics (Demo)")
+st.markdown("### *AI-Powered Insights into Student Activity*")
+st.markdown("---")
 
-# -----------------------------
-# 📦 DATABASE LOADER
-# -----------------------------
-def load_data_from_db():
+# Load Model
+@st.cache_resource
+def load_model():
+    try:
+        return joblib.load('isolation_forest.pkl')
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
+
+model = load_model()
+
+# Load Data
+@st.cache_data
+def load_data_from_mysql():
     try:
         conn = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="root1234",  # Change if needed
-            database="engagement_db"
+            password="",
+            database="engagesense_db"
         )
-        query = "SELECT * FROM student_engagement;"
+        query = "SELECT * FROM student_engagement"
         df = pd.read_sql(query, conn)
         conn.close()
-        return df
+        return df, "mysql"
+    except mysql.connector.Error as e:
+        st.warning(f"⚠️ Error loading data from MySQL: {e.errno}: {e.msg}")
+        st.info("Falling back to demo CSV data instead.")
+        return load_data_from_csv(), "csv"
+
+@st.cache_data
+def load_data_from_csv():
+    try:
+        return pd.read_csv('student_engagement.csv')
     except Exception as e:
-        st.error(f"⚠️ Error loading data from MySQL: {e}")
-        st.warning("Falling back to demo CSV data instead.")
-        return pd.read_csv("student_engagement.csv")
+        st.error(f"Error loading CSV: {e}")
+        return None
 
-# -----------------------------
-# 🤖 MODEL LOADER
-# -----------------------------
-@st.cache_resource
-def load_model(path):
-    return joblib.load(path)
+# Load data
+df, source = load_data_from_mysql()
 
-# -----------------------------
-# 📊 LOAD DATA
-# -----------------------------
-df = load_data_from_db()
+if df is not None and model is not None:
+    # Calculate engagement score if not present
+    if 'engagement_score' not in df.columns:
+        df['engagement_score'] = (
+            df['login_count'] * 0.25 +
+            (df['time_spent'] / 60) * 0.25 +
+            df['quiz_attempts'] * 0.2 +
+            df['forum_posts'] * 0.15 +
+            (df['assignment_score'] / 100) * 0.15 * 10
+        )
+    
+    # Predict anomalies
+    features = df[['login_count', 'time_spent', 'quiz_attempts', 'forum_posts', 'assignment_score']]
+    df['anomaly'] = model.predict(features)
+    df['anomaly_flag'] = df['anomaly'].apply(lambda x: 'Anomaly' if x == -1 else 'Normal')
+    
+    # Top Metrics
+    st.markdown("## 📊 Top: Engagement Summary")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Avg Engagement Score", f"{df['engagement_score'].mean():.2f}")
+    
+    with col2:
+        anomaly_count = (df['anomaly_flag'] == 'Anomaly').sum()
+        st.metric("Anomalies Detected", anomaly_count)
+    
+    with col3:
+        st.metric("Students", len(df))
+    
+    with col4:
+        st.metric("Avg Time Spent (hrs)", f"{df['time_spent'].mean():.1f}")
+    
+    st.markdown("---")
+    
+    # Charts
+    st.markdown("## 📈 Visual Analytics")
+    
+    tab1, tab2 = st.tabs(["📊 Distribution", "🔍 Anomaly Analysis"])
+    
+    with tab1:
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            fig1 = px.histogram(
+                df, 
+                x='engagement_score',
+                nbins=20,
+                title='Engagement Score Distribution',
+                color_discrete_sequence=['#1f77b4']
+            )
+            st.plotly_chart(fig1, use_container_width=True)
+        
+        with col2:
+            anomaly_counts = df['anomaly_flag'].value_counts()
+            fig2 = px.pie(
+                values=anomaly_counts.values,
+                names=anomaly_counts.index,
+                title='Normal vs Anomaly Students',
+                color_discrete_sequence=['#2ecc71', '#e74c3c']
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+    
+    with tab2:
+        fig3 = px.scatter(
+            df,
+            x='time_spent',
+            y='engagement_score',
+            color='anomaly_flag',
+            size='login_count',
+            hover_data=['student_id', 'assignment_score'],
+            title='Engagement Score vs Time Spent',
+            color_discrete_map={'Normal': '#2ecc71', 'Anomaly': '#e74c3c'}
+        )
+        st.plotly_chart(fig3, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Students Table
+    st.markdown("## 🎓 Students Table (sorted by engagement score)")
+    
+    # Filters
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        filter_anomaly = st.selectbox(
+            "Filter by Status:",
+            ["All Students", "Normal Only", "Anomalies Only"]
+        )
+    
+    with col2:
+        min_score = st.slider(
+            "Min Engagement Score:",
+            float(df['engagement_score'].min()),
+            float(df['engagement_score'].max()),
+            float(df['engagement_score'].min())
+        )
+    
+    with col3:
+        search_id = st.text_input("Search Student ID:", "")
+    
+    # Apply Filters
+    filtered_df = df.copy()
+    
+    if filter_anomaly == "Normal Only":
+        filtered_df = filtered_df[filtered_df['anomaly_flag'] == 'Normal']
+    elif filter_anomaly == "Anomalies Only":
+        filtered_df = filtered_df[filtered_df['anomaly_flag'] == 'Anomaly']
+    
+    filtered_df = filtered_df[filtered_df['engagement_score'] >= min_score]
+    
+    if search_id:
+        filtered_df = filtered_df[filtered_df['student_id'].astype(str).str.contains(search_id)]
+    
+    filtered_df = filtered_df.sort_values(by='engagement_score', ascending=False)
+    
+    st.info(f"📋 Showing {len(filtered_df)} of {len(df)} students")
+    
+    # Display table
+    def highlight_anomaly(row):
+        if row['anomaly_flag'] == 'Anomaly':
+            return ['background-color: #ffebee'] * len(row)
+        else:
+            return ['background-color: #e8f5e9'] * len(row)
+    
+    styled_df = filtered_df.style.apply(highlight_anomaly, axis=1)
+    st.dataframe(styled_df, use_container_width=True, height=400)
+    
+    # Download Button
+    csv = filtered_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Download Filtered Data as CSV",
+        data=csv,
+        file_name='filtered_students.csv',
+        mime='text/csv',
+    )
 
-# Engagement Score Calculation
-df['engagement_score'] = (
-    df['login_count'] * 0.25 +
-    (df['time_spent'] / 60) * 0.25 +
-    df['quiz_attempts'] * 0.2 +
-    df['forum_posts'] * 0.15 +
-    (df['assignment_score'] / 100) * 0.15 * 10
-)
-
-# -----------------------------
-# 🧮 SUMMARY METRICS
-# -----------------------------
-col1, col2, col3 = st.columns(3)
-col1.metric("Avg Engagement Score", f"{df['engagement_score'].mean():.2f}")
-col2.metric("Anomalies Detected", df[df['anomaly_flag'] == 'Anomaly'].shape[0])
-col3.metric("Students", df.shape[0])
-
-# -----------------------------
-# 📊 INTERACTIVE CHARTS
-# -----------------------------
-colA, colB = st.columns(2)
-
-with colA:
-    st.subheader("📈 Engagement vs Assignment Score")
-    fig1 = px.scatter(df, x='assignment_score', y='engagement_score',
-                      color='anomaly_flag', hover_data=['student_id'],
-                      color_discrete_map={'Normal': 'green', 'Anomaly': 'red'})
-    st.plotly_chart(fig1, use_container_width=True)
-
-with colB:
-    st.subheader("📊 Login Count Distribution")
-    fig2 = px.histogram(df, x='login_count', nbins=10, color='anomaly_flag')
-    st.plotly_chart(fig2, use_container_width=True)
-
-# -----------------------------
-# 🔍 SEARCH FILTER
-# -----------------------------
-st.sidebar.header("🔍 Filter Students")
-search = st.sidebar.text_input("Enter Student ID or Name:")
-
-if search:
-    df_filtered = df[df['student_id'].str.contains(search, case=False, na=False)]
 else:
-    df_filtered = df
+    st.error("Failed to load data or model.")
 
-# -----------------------------
-# 🚨 ANOMALY HIGHLIGHT
-# -----------------------------
-def highlight_anomaly(row):
-    color = 'background-color: #FFB3B3' if row['anomaly_flag'] == 'Anomaly' else ''
-    return [color] * len(row)
-
-st.subheader("📋 Student Engagement Table")
-st.dataframe(df_filtered.style.apply(highlight_anomaly, axis=1), use_container_width=True)
-
-# -----------------------------
-# 🦋 FOOTER
-# -----------------------------
+# Footer
+st.markdown("---")
 st.markdown("""
----
-✅ *Developed by Suraj Maurya — EngageSense (AI-Powered LMS Analytics)*  
-📧 [Contact Me](mailto:surajmauryaa70@gmail.com) | 🌐 [GitHub](https://github.com/surajmaurya70)
-""")
+    <div style='text-align: center; color: #7f8c8d;'>
+        <p>EngageSense © 2025 | Developed by Suraj Maurya</p>
+    </div>
+""", unsafe_allow_html=True)
+
