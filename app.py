@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import plotly.express as px
 from datetime import datetime
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
@@ -75,6 +76,7 @@ h2 {{
     animation: fadeInUp 0.7s ease;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }}
 
 [data-testid="stMetric"]::before {{
@@ -223,7 +225,7 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click any metric to filter Student Data Explorer below")
+    st.caption("👆 Click any metric card below to filter Student Data Explorer")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
@@ -231,36 +233,59 @@ if df is not None and model is not None:
     custom_risk = df['custom_risk'].sum()
     active_count = (df['anomaly_flag'] == 'Active').sum()
     
-    # Clickable metrics using st.metric + buttons
+    # Create clickable metric containers with transparent buttons
     with col1:
-        st.metric("Total Students", len(df), "+5")
-        if st.button("📚 View All", key="m1", use_container_width=True):
+        if st.button(f"Total Students\n\n{len(df)}\n\n+5 this week", key="m1", use_container_width=True, type="secondary"):
             st.session_state.selected_filter = 'All'
-            st.session_state.clicked_metric = 'Total Students'
+            st.session_state.clicked_metric = 'Total Students (All 40)'
+            # Scroll to data table
+            components.html("""
+                <script>
+                window.parent.document.querySelector('[data-testid="stDataFrame"]').scrollIntoView({behavior: 'smooth', block: 'center'});
+                </script>
+            """, height=0)
     
     with col2:
-        st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
-        if st.button("⚠️ Show At Risk", key="m2", use_container_width=True):
+        if st.button(f"AI At Risk\n\n{anomaly_count}\n\n{(anomaly_count/len(df)*100):.0f}% flagged", key="m2", use_container_width=True, type="secondary"):
             st.session_state.selected_filter = 'At Risk'
-            st.session_state.clicked_metric = 'At Risk Students'
+            st.session_state.clicked_metric = f'At Risk Students ({anomaly_count})'
+            components.html("""
+                <script>
+                window.parent.document.querySelector('[data-testid="stDataFrame"]').scrollIntoView({behavior: 'smooth', block: 'center'});
+                </script>
+            """, height=0)
     
     with col3:
-        st.metric("Below Threshold", custom_risk, f"{(custom_risk/len(df)*100):.0f}%")
-        if st.button("🔴 Show Below", key="m3", use_container_width=True):
+        if st.button(f"Below Threshold\n\n{custom_risk}\n\n{(custom_risk/len(df)*100):.0f}% below", key="m3", use_container_width=True, type="secondary"):
             st.session_state.selected_filter = 'Below Threshold'
-            st.session_state.clicked_metric = 'Below Threshold'
+            st.session_state.clicked_metric = f'Below Threshold ({custom_risk})'
+            components.html("""
+                <script>
+                window.parent.document.querySelector('[data-testid="stDataFrame"]').scrollIntoView({behavior: 'smooth', block: 'center'});
+                </script>
+            """, height=0)
     
     with col4:
-        st.metric("Active Students", active_count, f"{(active_count/len(df)*100):.0f}%")
-        if st.button("✅ Show Active", key="m4", use_container_width=True):
+        if st.button(f"Active Students\n\n{active_count}\n\n{(active_count/len(df)*100):.0f}% active", key="m4", use_container_width=True, type="secondary"):
             st.session_state.selected_filter = 'Active'
-            st.session_state.clicked_metric = 'Active Students'
+            st.session_state.clicked_metric = f'Active Students ({active_count})'
+            components.html("""
+                <script>
+                window.parent.document.querySelector('[data-testid="stDataFrame"]').scrollIntoView({behavior: 'smooth', block: 'center'});
+                </script>
+            """, height=0)
     
     with col5:
-        st.metric("Avg Engagement", f"{df['engagement_score'].mean():.2f}", "+0.3")
-        if st.button("📊 Above Avg", key="m5", use_container_width=True):
+        avg = df['engagement_score'].mean()
+        above_avg = (df['engagement_score'] >= avg).sum()
+        if st.button(f"Avg Engagement\n\n{avg:.2f}\n\n+0.3 increase", key="m5", use_container_width=True, type="secondary"):
             st.session_state.selected_filter = 'Above Average'
-            st.session_state.clicked_metric = 'Above Average'
+            st.session_state.clicked_metric = f'Above Average ({above_avg})'
+            components.html("""
+                <script>
+                window.parent.document.querySelector('[data-testid="stDataFrame"]').scrollIntoView({behavior: 'smooth', block: 'center'});
+                </script>
+            """, height=0)
     
     # Quick Insights
     st.markdown("## 📈 Quick Insights")
@@ -341,7 +366,7 @@ if df is not None and model is not None:
     
     # Show filter notification
     if st.session_state.clicked_metric:
-        st.success(f"✨ **Currently Filtered:** {st.session_state.clicked_metric}")
+        st.success(f"✨ **Currently Showing:** {st.session_state.clicked_metric}")
     
     filtered = df.copy()
     
@@ -363,7 +388,7 @@ if df is not None and model is not None:
     
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    st.info(f"📊 Showing **{len(filtered)}** of **{len(df)}** students")
+    st.info(f"📊 Displaying **{len(filtered)}** of **{len(df)}** total students")
     
     st.dataframe(filtered, use_container_width=True, height=400)
     
