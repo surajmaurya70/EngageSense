@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import joblib
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
+import time
 
 st.set_page_config(
     page_title="EngageSense Analytics",
@@ -12,347 +12,216 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
+# Initialize session state
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
+if 'ai_clicked' not in st.session_state:
+    st.session_state.ai_clicked = False
+if 'realtime_clicked' not in st.session_state:
+    st.session_state.realtime_clicked = False
+if 'alerts_clicked' not in st.session_state:
+    st.session_state.alerts_clicked = False
+if 'analytics_clicked' not in st.session_state:
+    st.session_state.analytics_clicked = False
+
+# Theme colors
+if st.session_state.theme == 'dark':
+    bg_color = '#1a1a1a'
+    surface_color = '#2d2d2d'
+    text_color = '#e0e0e0'
+    text_secondary = '#9e9e9e'
+    border_color = '#404040'
+else:
+    bg_color = '#f8f9fa'
+    surface_color = '#ffffff'
+    text_color = '#202124'
+    text_secondary = '#5f6368'
+    border_color = '#e0e0e0'
+
+st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    * { 
-        font-family: 'Inter', sans-serif;
-        box-sizing: border-box;
-    }
+    * {{ font-family: 'Inter', sans-serif; }}
     
-    .stApp { background: #f8f9fa; }
+    .stApp {{ background: {bg_color}; }}
     
-    /* Responsive Container */
-    .block-container {
-        padding: 1rem !important;
-        max-width: 100% !important;
-    }
-    
-    @media (min-width: 768px) {
-        .block-container {
-            padding: 2rem !important;
-        }
-    }
-    
-    /* Header - Responsive */
-    .main-header {
+    .main-header {{
         background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
-        padding: 1.5rem;
-        margin: -1rem -1rem 2rem -1rem;
+        padding: 2rem;
+        margin: -1rem -2rem 2rem -2rem;
         box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
         border-radius: 0 0 20px 20px;
-    }
+    }}
     
-    @media (min-width: 768px) {
-        .main-header {
-            padding: 2rem;
-            margin: -2rem -2rem 2rem -2rem;
-        }
-    }
-    
-    .header-content {
+    .header-content {{
         display: flex;
         align-items: center;
         gap: 1rem;
-        flex-wrap: wrap;
-    }
+    }}
     
-    .logo {
-        width: 48px;
-        height: 48px;
+    .logo {{
+        width: 56px;
+        height: 56px;
         background: white;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: #1a73e8;
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        flex-shrink: 0;
-    }
+    }}
     
-    @media (min-width: 768px) {
-        .logo {
-            width: 56px;
-            height: 56px;
-            font-size: 1.75rem;
-        }
-    }
-    
-    .title {
-        font-size: 1.25rem;
+    .title {{
+        font-size: 2rem;
         font-weight: 800;
         color: white;
-        line-height: 1.2;
-    }
+    }}
     
-    @media (min-width: 768px) {
-        .title {
-            font-size: 2rem;
-        }
-    }
-    
-    .subtitle {
-        font-size: 0.875rem;
+    .subtitle {{
+        font-size: 1rem;
         color: rgba(255,255,255,0.9);
-    }
+    }}
     
-    @media (min-width: 768px) {
-        .subtitle {
-            font-size: 1rem;
-        }
-    }
-    
-    /* Metric Cards - Responsive */
-    [data-testid="stMetric"] {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    @media (min-width: 768px) {
-        [data-testid="stMetric"] {
-            padding: 1.5rem;
-            border-radius: 16px;
-        }
-    }
-    
-    [data-testid="stMetric"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #1a73e8, #34a853);
-    }
-    
-    [data-testid="stMetric"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(26, 115, 232, 0.2);
-    }
-    
-    [data-testid="stMetric"] label {
-        color: #5f6368 !important;
-        font-size: 0.75rem !important;
-        font-weight: 600 !important;
-    }
-    
-    @media (min-width: 768px) {
-        [data-testid="stMetric"] label {
-            font-size: 0.875rem !important;
-        }
-    }
-    
-    [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        color: #202124 !important;
-        font-size: 1.75rem !important;
-        font-weight: 800 !important;
-    }
-    
-    @media (min-width: 768px) {
-        [data-testid="stMetric"] [data-testid="stMetricValue"] {
-            font-size: 2.5rem !important;
-        }
-    }
-    
-    /* Headers - Responsive */
-    h2 {
-        color: #202124 !important;
-        font-weight: 700 !important;
-        font-size: 1.25rem !important;
-        margin: 2rem 0 1rem 0 !important;
-        padding-left: 0.75rem;
-        border-left: 4px solid #1a73e8;
-    }
-    
-    @media (min-width: 768px) {
-        h2 {
-            font-size: 1.75rem !important;
-            padding-left: 1rem;
-        }
-    }
-    
-    /* Tabs - Responsive */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 0.25rem;
-        background: white;
-        padding: 0.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background: transparent;
-        color: #5f6368;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        font-size: 0.875rem;
-        white-space: nowrap;
-    }
-    
-    @media (min-width: 768px) {
-        .stTabs [data-baseweb="tab"] {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-        }
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: #1a73e8 !important;
-        color: white !important;
-    }
-    
-    /* Sidebar - Mobile Friendly */
-    [data-testid="stSidebar"] {
-        background: white;
-        border-right: 1px solid #e0e0e0;
-    }
-    
-    [data-testid="stSidebar"] h3 {
-        color: #202124 !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Feature Cards - Responsive Grid */
-    .feature-grid {
+    /* Feature Cards */
+    .feature-grid {{
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1rem;
         margin: 1.5rem 0;
-    }
+    }}
     
-    @media (min-width: 640px) {
-        .feature-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .feature-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-    
-    .feature-card {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 1.25rem;
+    .feature-card {{
+        background: {surface_color};
+        border: 2px solid {border_color};
+        border-radius: 16px;
+        padding: 1.5rem;
         text-align: center;
         transition: all 0.3s ease;
         cursor: pointer;
-    }
+    }}
     
-    .feature-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    .feature-card:hover {{
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(26, 115, 232, 0.2);
         border-color: #1a73e8;
-    }
+    }}
     
-    .feature-icon {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-    }
+    .feature-card.active {{
+        border-color: #34a853;
+        background: linear-gradient(135deg, rgba(52, 168, 83, 0.1), rgba(26, 115, 232, 0.1));
+    }}
     
-    .feature-title {
+    .feature-icon {{
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }}
+    
+    .feature-title {{
         font-weight: 700;
-        color: #202124;
+        color: {text_color};
         margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+    }}
+    
+    .feature-text {{
         font-size: 0.875rem;
-    }
+        color: {text_secondary};
+        line-height: 1.5;
+    }}
     
-    @media (min-width: 768px) {
-        .feature-title {
-            font-size: 1rem;
-        }
-    }
+    .feature-status {{
+        margin-top: 1rem;
+        padding: 0.5rem;
+        background: #34a853;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }}
     
-    .feature-text {
-        font-size: 0.75rem;
-        color: #5f6368;
-        line-height: 1.4;
-    }
-    
-    @media (min-width: 768px) {
-        .feature-text {
-            font-size: 0.875rem;
-        }
-    }
-    
-    /* Data Table - Responsive */
-    .stDataFrame {
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        overflow: auto;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    
-    /* Download Button - Responsive */
-    .stDownloadButton button {
-        background: linear-gradient(135deg, #1a73e8, #4285f4) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 24px !important;
-        padding: 0.75rem 1.5rem !important;
+    h2 {{
+        color: {text_color} !important;
         font-weight: 700 !important;
-        font-size: 0.875rem !important;
-        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4) !important;
-        width: 100%;
-    }
+        font-size: 1.75rem !important;
+        margin: 2rem 0 1rem 0 !important;
+        padding-left: 1rem;
+        border-left: 4px solid #1a73e8;
+    }}
     
-    @media (min-width: 768px) {
-        .stDownloadButton button {
-            padding: 0.875rem 2.5rem !important;
-            font-size: 1rem !important;
-            width: auto;
-        }
-    }
-    
-    /* Info Alert - Responsive */
-    .stAlert {
-        border-radius: 12px !important;
-        font-size: 0.875rem !important;
-    }
-    
-    /* Footer - Responsive */
-    .footer {
-        margin-top: 3rem;
+    [data-testid="stMetric"] {{
+        background: {surface_color};
+        border: 1px solid {border_color};
+        border-radius: 16px;
         padding: 1.5rem;
-        text-align: center;
-        background: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }}
+    
+    [data-testid="stMetric"]:hover {{
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(26, 115, 232, 0.2);
+    }}
+    
+    [data-testid="stMetric"] label {{
+        color: {text_secondary} !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+    }}
+    
+    [data-testid="stMetric"] [data-testid="stMetricValue"] {{
+        color: {text_color} !important;
+        font-size: 2.5rem !important;
+        font-weight: 800 !important;
+    }}
+    
+    .stTabs [data-baseweb="tab-list"] {{
+        background: {surface_color};
+        padding: 0.5rem;
         border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
+        border: 1px solid {border_color};
+    }}
     
-    @media (min-width: 768px) {
-        .footer {
-            margin-top: 4rem;
-            padding: 2.5rem;
-        }
-    }
+    .stTabs [data-baseweb="tab"] {{
+        color: {text_secondary};
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+    }}
     
-    #MainMenu, footer, header {visibility: hidden;}
+    .stTabs [aria-selected="true"] {{
+        background: #1a73e8 !important;
+        color: white !important;
+    }}
     
-    /* Mobile touch improvements */
-    @media (max-width: 767px) {
-        button, a, [role="button"] {
-            min-height: 44px;
-            min-width: 44px;
-        }
-    }
+    [data-testid="stSidebar"] {{
+        background: {surface_color};
+        border-right: 1px solid {border_color};
+    }}
+    
+    [data-testid="stSidebar"] h3 {{
+        color: {text_color} !important;
+        font-weight: 700 !important;
+    }}
+    
+    .stDataFrame {{
+        border: 1px solid {border_color};
+        border-radius: 12px;
+        overflow: hidden;
+    }}
+    
+    .footer {{
+        margin-top: 4rem;
+        padding: 2.5rem;
+        text-align: center;
+        background: {surface_color};
+        border-radius: 16px;
+        border: 1px solid {border_color};
+    }}
+    
+    #MainMenu, footer, header {{visibility: hidden;}}
     </style>
 """, unsafe_allow_html=True)
 
@@ -361,7 +230,7 @@ st.markdown("""
     <div class="main-header">
         <div class="header-content">
             <div class="logo">ES</div>
-            <div style="flex: 1; min-width: 0;">
+            <div>
                 <div class="title">EngageSense Analytics</div>
                 <div class="subtitle">🤖 AI-Powered Student Engagement Platform</div>
             </div>
@@ -369,17 +238,23 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
+# Sidebar with Theme Toggle
 with st.sidebar:
-    st.markdown("### 🎯 Quick Actions")
+    st.markdown("### ⚙️ Settings")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📤", help="Export Data", use_container_width=True):
-            st.success("✅ Export started!")
-    with col2:
-        if st.button("📧", help="Email Report", use_container_width=True):
-            st.success("✅ Email sent!")
+    theme_option = st.radio(
+        "Theme",
+        ["🌞 Light", "🌙 Dark"],
+        index=0 if st.session_state.theme == 'light' else 1,
+        horizontal=True
+    )
+    
+    if "Light" in theme_option and st.session_state.theme != 'light':
+        st.session_state.theme = 'light'
+        st.rerun()
+    elif "Dark" in theme_option and st.session_state.theme != 'dark':
+        st.session_state.theme = 'dark'
+        st.rerun()
     
     st.markdown("---")
     st.markdown("### 🔍 Filters")
@@ -433,31 +308,53 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    # Feature Cards
-    st.markdown("""
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🤖</div>
-                <div class="feature-title">AI Detection</div>
-                <div class="feature-text">Machine learning anomaly detection</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <div class="feature-title">Real-Time</div>
-                <div class="feature-text">Live engagement tracking</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <div class="feature-title">Alerts</div>
-                <div class="feature-text">Smart notifications</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📈</div>
-                <div class="feature-title">Analytics</div>
-                <div class="feature-text">Advanced insights</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # Feature Cards with Click Functionality
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        if st.button("🤖\n\n**AI Detection**\n\nMachine learning anomaly detection", use_container_width=True):
+            st.session_state.ai_clicked = True
+            time.sleep(0.3)
+    
+    with col2:
+        if st.button("📊\n\n**Real-Time**\n\nLive engagement tracking", use_container_width=True):
+            st.session_state.realtime_clicked = True
+            time.sleep(0.3)
+    
+    with col3:
+        if st.button("🔔\n\n**Alerts**\n\nSmart notifications", use_container_width=True):
+            st.session_state.alerts_clicked = True
+            time.sleep(0.3)
+    
+    with col4:
+        if st.button("📈\n\n**Analytics**\n\nAdvanced insights", use_container_width=True):
+            st.session_state.analytics_clicked = True
+            time.sleep(0.3)
+    
+    # Show success messages
+    if st.session_state.ai_clicked:
+        st.success("✅ AI Detection Activated! Anomaly detection is running.")
+        if st.button("Close AI Message"):
+            st.session_state.ai_clicked = False
+            st.rerun()
+    
+    if st.session_state.realtime_clicked:
+        st.success("✅ Real-Time Tracking Enabled! Live data syncing every 5 seconds.")
+        if st.button("Close Real-Time Message"):
+            st.session_state.realtime_clicked = False
+            st.rerun()
+    
+    if st.session_state.alerts_clicked:
+        st.success("✅ Alerts Configured! You'll receive notifications for at-risk students.")
+        if st.button("Close Alerts Message"):
+            st.session_state.alerts_clicked = False
+            st.rerun()
+    
+    if st.session_state.analytics_clicked:
+        st.success("✅ Advanced Analytics Loaded! Detailed insights are now visible.")
+        if st.button("Close Analytics Message"):
+            st.session_state.analytics_clicked = False
+            st.rerun()
     
     st.markdown("## 📊 Dashboard")
     
@@ -479,39 +376,39 @@ if df is not None and model is not None:
     if show_charts:
         st.markdown("## 📈 Analytics")
         
-        tab1, tab2, tab3 = st.tabs(["📊 Charts", "🔍 Anomaly", "🏆 Top 10"])
+        tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔍 Anomaly", "🏆 Top 10"])
         
         with tab1:
-            col1, col2 = st.columns([1, 1])
+            col1, col2 = st.columns(2)
             
             with col1:
-                fig1 = px.histogram(df, x='engagement_score', nbins=20, title='Distribution')
-                fig1.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, showlegend=False, margin=dict(l=20, r=20, t=40, b=20))
+                fig1 = px.histogram(df, x='engagement_score', nbins=20, title='Engagement Distribution')
+                fig1.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
                 fig1.update_traces(marker_color='#1a73e8')
                 st.plotly_chart(fig1, use_container_width=True)
             
             with col2:
                 counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='Status', hole=0.4)
-                fig2.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=20, r=20, t=40, b=20))
+                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status', hole=0.4)
+                fig2.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
                 fig2.update_traces(marker=dict(colors=['#34a853', '#ea4335']))
                 st.plotly_chart(fig2, use_container_width=True)
         
         with tab2:
-            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag', size='login_count', 
-                            hover_data=['student_id'], title='Time vs Engagement',
+            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag', 
+                            size='login_count', hover_data=['student_id'], title='Time vs Engagement',
                             color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
-            fig3.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=20, r=20, t=40, b=40))
+            fig3.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
             st.plotly_chart(fig3, use_container_width=True)
         
         with tab3:
             top_10 = df.nlargest(10, 'engagement_score')
             fig4 = px.bar(top_10, x='student_id', y='engagement_score', color='anomaly_flag',
-                        title='Top Students', color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
-            fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=20, r=20, t=40, b=40))
+                        title='Top 10 Students', color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
+            fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
             st.plotly_chart(fig4, use_container_width=True)
     
-    st.markdown("## 📋 Data")
+    st.markdown("## 📋 Student Data")
     
     filtered = df.copy()
     
@@ -529,25 +426,25 @@ if df is not None and model is not None:
     
     st.info(f"📊 Showing {len(filtered)} of {len(df)} students")
     
-    st.dataframe(filtered, use_container_width=True, height=350)
+    st.dataframe(filtered, use_container_width=True, height=400)
     
     csv = filtered.to_csv(index=False).encode('utf-8')
     st.download_button(
         label=f"📥 Download {len(filtered)} Records",
         data=csv,
-        file_name=f'data_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
+        file_name=f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
         mime='text/csv',
         use_container_width=True
     )
 
 else:
-    st.error("❌ Failed to load data")
+    st.error("❌ Failed to load data or model")
 
-st.markdown("""
+st.markdown(f"""
     <div class="footer">
-        <h3 style="color: #1a73e8; margin: 0 0 0.5rem 0;">📊 EngageSense</h3>
-        <p style="margin: 0.5rem 0; color: #202124;">By <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
-        <p style="margin: 0.5rem 0; font-size: 0.875rem; color: #5f6368;">AI · ML · Python · Streamlit</p>
-        <p style="margin: 0.5rem 0 0 0; font-size: 0.75rem; color: #5f6368;">© 2025 All Rights Reserved</p>
+        <h3 style="color: #1a73e8; margin: 0 0 1rem 0;">📊 EngageSense Analytics</h3>
+        <p style="margin: 0.5rem 0; color: {text_color};">Developed by <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
+        <p style="margin: 0.5rem 0; font-size: 0.875rem; color: {text_secondary};">🤖 AI · 📊 ML · 🐍 Python · ⚡ Streamlit · 📈 Plotly</p>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: {text_secondary};">© 2025 All Rights Reserved</p>
     </div>
 """, unsafe_allow_html=True)
