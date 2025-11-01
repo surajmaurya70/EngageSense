@@ -224,7 +224,7 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click any button below metrics to filter data")
+    st.caption("👆 Click any button to filter student data below")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
@@ -233,7 +233,6 @@ if df is not None and model is not None:
     active_count = (df['anomaly_flag'] == 'Active').sum()
     avg_score = df['engagement_score'].mean()
     
-    # Metrics with buttons
     with col1:
         st.metric("Total Students", len(df), "+5")
         if st.button("📚 View All", key="m1", use_container_width=True):
@@ -270,7 +269,44 @@ if df is not None and model is not None:
             st.session_state.clicked_metric = f'Above Average ({above_avg})'
             st.rerun()
     
-    # Quick Insights
+    # STUDENT DATA EXPLORER - MOVED RIGHT AFTER DASHBOARD
+    st.markdown("## 📋 Student Data Explorer")
+    
+    if st.session_state.clicked_metric:
+        st.success(f"✨ **Showing:** {st.session_state.clicked_metric}")
+    
+    filtered = df.copy()
+    
+    if st.session_state.selected_filter == 'At Risk':
+        filtered = filtered[filtered['anomaly_flag'] == 'At Risk']
+    elif st.session_state.selected_filter == 'Active':
+        filtered = filtered[filtered['anomaly_flag'] == 'Active']
+    elif st.session_state.selected_filter == 'Below Threshold':
+        filtered = filtered[filtered['custom_risk'] == True]
+    elif st.session_state.selected_filter == 'Above Average':
+        filtered = filtered[filtered['engagement_score'] >= avg_score]
+    
+    filtered = filtered[filtered['engagement_score'] >= min_score]
+    
+    if search_id:
+        filtered = filtered[filtered['student_id'].astype(str).str.contains(search_id, case=False)]
+    
+    filtered = filtered.sort_values('engagement_score', ascending=False)
+    
+    st.info(f"📊 Displaying **{len(filtered)}** of **{len(df)}** total students")
+    
+    st.dataframe(filtered, use_container_width=True, height=400)
+    
+    csv = filtered.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        f"📥 Download {len(filtered)} Records",
+        csv,
+        f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
+        'text/csv',
+        use_container_width=True
+    )
+    
+    # Quick Insights - AFTER DATA TABLE
     st.markdown("## 📈 Quick Insights")
     col1, col2, col3 = st.columns(3)
     
@@ -286,6 +322,7 @@ if df is not None and model is not None:
         active_pct = (active_count / len(df) * 100)
         st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count} students)")
     
+    # Visual Analytics - AT THE BOTTOM
     if show_charts:
         st.markdown("## 📈 Visual Analytics")
         
@@ -342,46 +379,6 @@ if df is not None and model is not None:
             fig5.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height,
                               margin=dict(l=40, r=40, t=60, b=40))
             st.plotly_chart(fig5, use_container_width=True, key="chart5")
-    
-    # Data Table - This will be at bottom and visible after button click
-    st.markdown("## 📋 Student Data Explorer")
-    
-    # Show what's currently filtered
-    if st.session_state.clicked_metric:
-        st.success(f"✨ **Showing:** {st.session_state.clicked_metric}")
-    
-    filtered = df.copy()
-    
-    # Apply filters based on selection
-    if st.session_state.selected_filter == 'At Risk':
-        filtered = filtered[filtered['anomaly_flag'] == 'At Risk']
-    elif st.session_state.selected_filter == 'Active':
-        filtered = filtered[filtered['anomaly_flag'] == 'Active']
-    elif st.session_state.selected_filter == 'Below Threshold':
-        filtered = filtered[filtered['custom_risk'] == True]
-    elif st.session_state.selected_filter == 'Above Average':
-        filtered = filtered[filtered['engagement_score'] >= avg_score]
-    
-    # Manual filters
-    filtered = filtered[filtered['engagement_score'] >= min_score]
-    
-    if search_id:
-        filtered = filtered[filtered['student_id'].astype(str).str.contains(search_id, case=False)]
-    
-    filtered = filtered.sort_values('engagement_score', ascending=False)
-    
-    st.info(f"📊 Displaying **{len(filtered)}** of **{len(df)}** total students")
-    
-    st.dataframe(filtered, use_container_width=True, height=400)
-    
-    csv = filtered.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        f"📥 Download {len(filtered)} Records",
-        csv,
-        f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
-        'text/csv',
-        use_container_width=True
-    )
 
 else:
     st.error("❌ Failed to load data")
