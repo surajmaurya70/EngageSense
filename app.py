@@ -16,175 +16,229 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
     
-    * { font-family: 'Inter', sans-serif; }
+    * {
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+    }
     
     .stApp {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background: #f8f9fa;
     }
     
     .block-container {
-        padding: 2rem 2.5rem !important;
+        padding: 1.5rem 2rem !important;
         max-width: 1400px;
     }
     
-    .main-header {
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        text-align: center;
+    /* Google Analytics Header */
+    .ga-header {
+        background: #ffffff;
+        padding: 1.5rem 2rem;
+        margin: -1.5rem -2rem 2rem -2rem;
+        border-bottom: 1px solid #e8eaed;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
     }
     
-    .header-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #ffffff;
-        margin-bottom: 0.5rem;
+    .ga-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #202124;
+        margin: 0;
     }
     
-    .header-subtitle {
-        font-size: 1rem;
-        color: rgba(255,255,255,0.7);
+    .ga-subtitle {
+        font-size: 0.875rem;
+        color: #5f6368;
+        margin-top: 0.25rem;
     }
     
+    /* Metric Cards - Google Material Style */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
         padding: 1.5rem;
-        transition: all 0.3s ease;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        transition: box-shadow 0.2s ease;
     }
     
     [data-testid="stMetric"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
     }
     
     [data-testid="stMetric"] label {
-        color: rgba(255,255,255,0.8) !important;
-        font-size: 0.9rem !important;
-        font-weight: 600 !important;
+        color: #5f6368 !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        text-transform: none !important;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        color: #ffffff !important;
-        font-size: 2.5rem !important;
-        font-weight: 800 !important;
+        color: #202124 !important;
+        font-size: 2rem !important;
+        font-weight: 400 !important;
     }
     
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-        border-right: 1px solid rgba(255,255,255,0.1);
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+        color: #1a73e8 !important;
+        font-size: 0.875rem !important;
     }
     
-    [data-testid="stSidebar"] h3 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
+    /* Section Headers */
+    h2 {
+        color: #202124 !important;
+        font-weight: 500 !important;
+        font-size: 1.375rem !important;
+        margin: 2rem 0 1rem 0 !important;
     }
     
+    h3 {
+        color: #202124 !important;
+        font-weight: 500 !important;
+        font-size: 1.125rem !important;
+    }
+    
+    /* Tabs - Material Design */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.5rem;
-        background: rgba(255,255,255,0.05);
-        padding: 0.5rem;
-        border-radius: 10px;
+        gap: 0;
+        background: #ffffff;
+        border-bottom: 1px solid #dadce0;
+        padding: 0;
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
-        color: rgba(255,255,255,0.6);
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
+        color: #5f6368;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #202124;
+        background: rgba(26, 115, 232, 0.04);
     }
     
     .stTabs [aria-selected="true"] {
-        background: rgba(255,255,255,0.15) !important;
-        color: #ffffff !important;
+        color: #1a73e8 !important;
+        border-bottom-color: #1a73e8 !important;
+        background: transparent !important;
     }
     
-    h2 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        margin: 2rem 0 1rem 0 !important;
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: #ffffff;
+        border-right: 1px solid #dadce0;
     }
     
+    [data-testid="stSidebar"] h3 {
+        color: #202124 !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        margin-top: 1.5rem !important;
+    }
+    
+    [data-testid="stSidebar"] label {
+        color: #5f6368 !important;
+        font-weight: 500 !important;
+        font-size: 0.875rem !important;
+    }
+    
+    /* Info Box */
     .stAlert {
-        background: rgba(255,255,255,0.1) !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        border-radius: 10px !important;
-        color: #ffffff !important;
+        background: #e8f0fe !important;
+        border: 1px solid #d2e3fc !important;
+        border-radius: 8px !important;
+        color: #174ea6 !important;
     }
     
+    /* Data Table */
     .stDataFrame {
-        border-radius: 12px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
         overflow: hidden;
     }
     
-    .footer {
+    /* Download Button */
+    .stDownloadButton button {
+        background: #1a73e8 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stDownloadButton button:hover {
+        background: #1765cc !important;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
+    }
+    
+    /* Footer */
+    .ga-footer {
         margin-top: 4rem;
         padding: 2rem;
         text-align: center;
-        background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #dadce0;
     }
     
     .footer-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #ffffff;
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: #202124;
         margin-bottom: 0.5rem;
     }
     
     .footer-text {
-        color: rgba(255,255,255,0.7);
-        margin: 0.3rem 0;
+        color: #5f6368;
+        margin: 0.25rem 0;
+        font-size: 0.875rem;
     }
     
     #MainMenu, footer, header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
+# Header
 st.markdown("""
-    <div class="main-header">
-        <div class="header-title">📊 EngageSense Analytics</div>
-        <div class="header-subtitle">AI-Powered Student Engagement Monitoring Platform</div>
+    <div class="ga-header">
+        <div class="ga-title">EngageSense Analytics</div>
+        <div class="ga-subtitle">AI-Powered Student Engagement Monitoring Platform</div>
     </div>
 """, unsafe_allow_html=True)
 
+# Sidebar
 with st.sidebar:
-    st.markdown("### ⚙️ Settings & Filters")
-    st.markdown("---")
+    st.markdown("### Filters")
     
-    data_source = st.radio("📁 Data Source", ["CSV File", "MySQL Database"])
+    data_source = st.radio("Data Source", ["CSV File", "MySQL Database"])
     
     st.markdown("---")
-    st.markdown("### 🔍 Filters")
     
     filter_status = st.selectbox("Student Status", ["All Students", "Active Only", "At Risk Only"])
     min_score = st.slider("Min Engagement Score", 0.0, 10.0, 0.0)
-    search_id = st.text_input("Search Student ID", placeholder="Enter Student ID...")
+    search_id = st.text_input("Search Student ID", placeholder="e.g., S007")
     
     st.markdown("---")
-    st.markdown("### 📊 Display")
+    st.markdown("### Display Options")
     
     show_charts = st.checkbox("Show Charts", value=True)
     chart_height = st.slider("Chart Height", 300, 600, 400)
     
     st.markdown("---")
-    st.info(f"**Last Updated**  \n{datetime.now().strftime('%B %d, %Y')}")
+    st.info(f"Last updated: {datetime.now().strftime('%B %d, %Y')}")
 
 @st.cache_resource
 def load_model():
     try:
         return joblib.load('isolation_forest.pkl')
     except Exception as e:
-        st.error(f"Model Error: {e}")
         return None
 
 @st.cache_data
@@ -201,8 +255,7 @@ def load_data_from_mysql():
 def load_data_from_csv():
     try:
         return pd.read_csv('student_engagement.csv')
-    except Exception as e:
-        st.error(f"Data Error: {e}")
+    except:
         return None
 
 model = load_model()
@@ -226,7 +279,7 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    st.markdown("## 📊 Dashboard Overview")
+    st.markdown("## Overview")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -235,16 +288,16 @@ if df is not None and model is not None:
     
     with col2:
         anomaly_count = (df['anomaly'] == -1).sum()
-        st.metric("At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
+        st.metric("At Risk Students", anomaly_count, f"{(anomaly_count/len(df)*100):.1f}%")
     
     with col3:
-        st.metric("Avg Score", f"{df['engagement_score'].mean():.2f}", "+0.3")
+        st.metric("Avg Engagement", f"{df['engagement_score'].mean():.2f}", "+0.3")
     
     with col4:
-        st.metric("Avg Time (hrs)", f"{df['time_spent'].mean():.1f}", "+2.3")
+        st.metric("Avg Time (hours)", f"{df['time_spent'].mean():.1f}", "+2.3")
     
     if show_charts:
-        st.markdown("## 📈 Visual Analytics")
+        st.markdown("## Analytics")
         
         tab1, tab2, tab3 = st.tabs(["Distribution", "Anomaly Detection", "Top Performers"])
         
@@ -252,31 +305,60 @@ if df is not None and model is not None:
             col1, col2 = st.columns(2)
             
             with col1:
-                fig1 = px.histogram(df, x='engagement_score', nbins=25, title='Engagement Distribution', color_discrete_sequence=['#4a90e2'])
-                fig1.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+                fig1 = px.histogram(df, x='engagement_score', nbins=25, title='Engagement Score Distribution')
+                fig1.update_layout(
+                    plot_bgcolor='white',
+                    paper_bgcolor='white',
+                    font=dict(color='#202124'),
+                    height=chart_height,
+                    showlegend=False
+                )
+                fig1.update_traces(marker_color='#1a73e8')
                 st.plotly_chart(fig1, use_container_width=True)
             
             with col2:
                 counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status', hole=0.5, color_discrete_sequence=['#50c878', '#ff6b6b'])
-                fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status Distribution', hole=0.4)
+                fig2.update_layout(
+                    plot_bgcolor='white',
+                    paper_bgcolor='white',
+                    font=dict(color='#202124'),
+                    height=chart_height
+                )
+                fig2.update_traces(marker=dict(colors=['#34a853', '#ea4335']))
                 st.plotly_chart(fig2, use_container_width=True)
         
         with tab2:
-            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag', size='login_count', 
-                            hover_data=['student_id'], title='Time vs Engagement', 
-                            color_discrete_map={'Active': '#50c878', 'At Risk': '#ff6b6b'})
-            fig3.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+            fig3 = px.scatter(
+                df, x='time_spent', y='engagement_score', color='anomaly_flag',
+                size='login_count', hover_data=['student_id'],
+                title='Time Spent vs Engagement Score',
+                color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'}
+            )
+            fig3.update_layout(
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                font=dict(color='#202124'),
+                height=chart_height
+            )
             st.plotly_chart(fig3, use_container_width=True)
         
         with tab3:
             top_10 = df.nlargest(10, 'engagement_score')
-            fig4 = px.bar(top_10, x='student_id', y='engagement_score', color='anomaly_flag', title='Top 10 Students',
-                        color_discrete_map={'Active': '#50c878', 'At Risk': '#ff6b6b'})
-            fig4.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+            fig4 = px.bar(
+                top_10, x='student_id', y='engagement_score',
+                color='anomaly_flag', title='Top 10 Students by Engagement',
+                color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'}
+            )
+            fig4.update_layout(
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                font=dict(color='#202124'),
+                height=chart_height
+            )
             st.plotly_chart(fig4, use_container_width=True)
     
-    st.markdown("## 📋 Student Data")
+    st.markdown("## Student Data")
     
     filtered = df.copy()
     
@@ -292,34 +374,28 @@ if df is not None and model is not None:
     
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    st.info(f"Showing **{len(filtered)}** of **{len(df)}** students")
+    st.info(f"Showing {len(filtered)} of {len(df)} students")
     
-    def highlight_row(row):
-        if row['anomaly_flag'] == 'At Risk':
-            return ['background-color: rgba(255, 107, 107, 0.2)'] * len(row)
-        return ['background-color: rgba(80, 200, 120, 0.1)'] * len(row)
-    
-    styled_df = filtered.style.apply(highlight_row, axis=1)
-    st.dataframe(styled_df, use_container_width=True, height=400)
+    st.dataframe(filtered, use_container_width=True, height=400)
     
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
         csv = filtered.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label=f"📥 Export {len(filtered)} Records",
+            label=f"Download {len(filtered)} records",
             data=csv,
-            file_name=f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
+            file_name=f'engagesense_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
             mime='text/csv',
             use_container_width=True
         )
 
 else:
-    st.error("❌ Failed to load data or model")
+    st.error("Failed to load data or model")
 
 st.markdown("""
-    <div class="footer">
+    <div class="ga-footer">
         <div class="footer-title">EngageSense Analytics</div>
-        <div class="footer-text">Developed by <strong>Suraj Maurya</strong></div>
+        <div class="footer-text">Developed by Suraj Maurya</div>
         <div class="footer-text">Machine Learning · Python · Streamlit · Plotly</div>
         <div class="footer-text">© 2025 All Rights Reserved</div>
     </div>
