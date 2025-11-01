@@ -31,17 +31,40 @@ st.markdown("""
         max-width: 1400px;
     }
     
-    /* Google Analytics Header */
+    /* Google Analytics Header with Logo */
     .ga-header {
         background: #ffffff;
-        padding: 1.5rem 2rem;
+        padding: 1rem 2rem;
         margin: -1.5rem -2rem 2rem -2rem;
         border-bottom: 1px solid #e8eaed;
         box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
     }
     
     .ga-title {
-        font-size: 1.5rem;
+        font-size: 1.375rem;
         font-weight: 500;
         color: #202124;
         margin: 0;
@@ -50,7 +73,7 @@ st.markdown("""
     .ga-subtitle {
         font-size: 0.875rem;
         color: #5f6368;
-        margin-top: 0.25rem;
+        margin-top: 0.125rem;
     }
     
     /* Metric Cards - Google Material Style */
@@ -178,6 +201,29 @@ st.markdown("""
         box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
     }
     
+    /* Feature Cards */
+    .feature-card {
+        background: white;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
+    }
+    
+    .feature-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #202124;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-text {
+        font-size: 0.875rem;
+        color: #5f6368;
+        line-height: 1.5;
+    }
+    
     /* Footer */
     .ga-footer {
         margin-top: 4rem;
@@ -201,15 +247,25 @@ st.markdown("""
         font-size: 0.875rem;
     }
     
+    .creator-highlight {
+        color: #1a73e8;
+        font-weight: 600;
+    }
+    
     #MainMenu, footer, header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# Header
+# Header with Logo
 st.markdown("""
     <div class="ga-header">
-        <div class="ga-title">EngageSense Analytics</div>
-        <div class="ga-subtitle">AI-Powered Student Engagement Monitoring Platform</div>
+        <div class="logo-container">
+            <div class="logo-icon">📊</div>
+            <div>
+                <div class="ga-title">EngageSense Analytics</div>
+                <div class="ga-subtitle">AI-Powered Student Engagement Monitoring</div>
+            </div>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -232,6 +288,20 @@ with st.sidebar:
     chart_height = st.slider("Chart Height", 300, 600, 400)
     
     st.markdown("---")
+    
+    # Feature Info
+    st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">✨ Key Features</div>
+            <div class="feature-text">
+                • AI-powered anomaly detection<br>
+                • Real-time engagement tracking<br>
+                • Predictive analytics<br>
+                • Custom reports & exports
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     st.info(f"Last updated: {datetime.now().strftime('%B %d, %Y')}")
 
 @st.cache_resource
@@ -394,9 +464,9 @@ else:
 
 st.markdown("""
     <div class="ga-footer">
-        <div class="footer-title">EngageSense Analytics</div>
-        <div class="footer-text">Developed by Suraj Maurya</div>
-        <div class="footer-text">Machine Learning · Python · Streamlit · Plotly</div>
-        <div class="footer-text">© 2025 All Rights Reserved</div>
+        <div class="footer-title">📊 EngageSense Analytics</div>
+        <div class="footer-text">Developed by <span class="creator-highlight">Suraj Maurya</span></div>
+        <div class="footer-text">Machine Learning · Python · Streamlit · Plotly · Scikit-learn</div>
+        <div class="footer-text">© 2025 EngageSense. All Rights Reserved.</div>
     </div>
 """, unsafe_allow_html=True)
