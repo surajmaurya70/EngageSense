@@ -27,7 +27,8 @@ st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 * {{ font-family: 'Inter', sans-serif; }}
-.stApp {{ background: {t['bg']}; }}
+.stApp {{ background: {t['bg']}; scroll-behavior: smooth; }}
+html {{ scroll-behavior: smooth; }}
 
 @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 @keyframes slideIn {{ from {{ opacity: 0; transform: translateX(-50px); }} to {{ opacity: 1; transform: translateX(0); }} }}
@@ -141,7 +142,7 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click buttons to filter and scroll to Student Data")
+    st.caption("👆 Click buttons to filter and scroll")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     anomaly_count = (df['anomaly'] == -1).sum()
@@ -158,23 +159,23 @@ if df is not None and model is not None:
             st.rerun()
     with col2:
         st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
-        if st.button("⚠️ Show At Risk", key="m2", use_container_width=True):
+        if st.button("⚠️ At Risk", key="m2", use_container_width=True):
             st.session_state.selected_filter = 'At Risk'
-            st.session_state.clicked_metric = f'At Risk Students ({anomaly_count})'
+            st.session_state.clicked_metric = f'At Risk ({anomaly_count})'
             st.session_state.trigger_scroll = True
             st.rerun()
     with col3:
         st.metric("Below Threshold", custom_risk_count, f"{(custom_risk_count/len(df)*100):.0f}%")
-        if st.button("🔴 Show Below", key="m3", use_container_width=True):
+        if st.button("🔴 Below", key="m3", use_container_width=True):
             st.session_state.selected_filter = 'Below Threshold'
-            st.session_state.clicked_metric = f'Below Threshold ({custom_risk_count})'
+            st.session_state.clicked_metric = f'Below ({custom_risk_count})'
             st.session_state.trigger_scroll = True
             st.rerun()
     with col4:
         st.metric("Active Students", active_count, f"{(active_count/len(df)*100):.0f}%")
-        if st.button("✅ Show Active", key="m4", use_container_width=True):
+        if st.button("✅ Active", key="m4", use_container_width=True):
             st.session_state.selected_filter = 'Active'
-            st.session_state.clicked_metric = f'Active Students ({active_count})'
+            st.session_state.clicked_metric = f'Active ({active_count})'
             st.session_state.trigger_scroll = True
             st.rerun()
     with col5:
@@ -182,7 +183,7 @@ if df is not None and model is not None:
         st.metric("Avg Engagement", f"{avg_score:.2f}", "+0.3")
         if st.button("📊 Above Avg", key="m5", use_container_width=True):
             st.session_state.selected_filter = 'Above Average'
-            st.session_state.clicked_metric = f'Above Average ({above_avg})'
+            st.session_state.clicked_metric = f'Above Avg ({above_avg})'
             st.session_state.trigger_scroll = True
             st.rerun()
     
@@ -197,58 +198,57 @@ if df is not None and model is not None:
         st.warning(f"**⚠️ Needs Attention**\n\n{bottom_student['student_id']} - {bottom_student['engagement_score']:.2f}")
     with col3:
         active_pct = (active_count / len(df) * 100)
-        st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count} students)")
+        st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count})")
     
     # Visual Analytics
     if show_charts:
         st.markdown("## 📈 Visual Analytics")
-        tab1, tab2, tab3, tab4 = st.tabs(["📊 Distribution", "🔍 Anomaly Detection", "📈 Activity Metrics", "🎯 Performance Analysis"])
+        tab1, tab2, tab3, tab4 = st.tabs(["📊 Distribution", "🔍 Anomaly", "📈 Activity", "🎯 Performance"])
         
         with tab1:
             col1, col2 = st.columns(2)
             with col1:
-                fig1 = px.histogram(df, x='engagement_score', nbins=20, title='📊 Engagement Score Distribution')
+                fig1 = px.histogram(df, x='engagement_score', nbins=20, title='📊 Engagement Distribution')
                 fig1.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
                 fig1.update_traces(marker_color='#1a73e8')
-                st.plotly_chart(fig1, use_container_width=True, key="chart1")
+                st.plotly_chart(fig1, use_container_width=True, key="c1")
             with col2:
                 counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='🥧 Student Status Distribution', hole=0.4)
+                fig2 = px.pie(values=counts.values, names=counts.index, title='🥧 Status Distribution', hole=0.4)
                 fig2.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
                 fig2.update_traces(marker=dict(colors=['#34a853', '#ea4335']))
-                st.plotly_chart(fig2, use_container_width=True, key="chart2")
+                st.plotly_chart(fig2, use_container_width=True, key="c2")
         
         with tab2:
             fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag',
-                size='login_count', hover_data=['student_id'], title='🔍 Time Spent vs Engagement Score',
+                size='login_count', hover_data=['student_id'], title='🔍 Time vs Engagement',
                 color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
             fig3.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig3, use_container_width=True, key="chart3")
+            st.plotly_chart(fig3, use_container_width=True, key="c3")
         
         with tab3:
             fig4 = px.bar(df.nlargest(15, 'login_count'), x='student_id', y='login_count',
-                title='📈 Top 15 Students by Login Count', color='login_count', color_continuous_scale='Blues')
+                title='📈 Top 15 by Logins', color='login_count', color_continuous_scale='Blues')
             fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig4, use_container_width=True, key="chart4")
+            st.plotly_chart(fig4, use_container_width=True, key="c4")
         
         with tab4:
             fig5 = px.scatter(df, x='quiz_attempts', y='assignment_score', size='engagement_score', color='anomaly_flag',
-                hover_data=['student_id'], title='🎯 Quiz Attempts vs Assignment Score',
+                hover_data=['student_id'], title='🎯 Quiz vs Assignment',
                 color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
             fig5.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig5, use_container_width=True, key="chart5")
+            st.plotly_chart(fig5, use_container_width=True, key="c5")
     
-    # STUDENT DATA EXPLORER WITH SCROLL TARGET
-    st.markdown('<div id="data-explorer"></div>', unsafe_allow_html=True)
+    # STUDENT DATA
     st.markdown("## 📋 Student Data Explorer")
     
-    # TRIGGER SCROLL HERE
+    # FAST SCROLL
     if st.session_state.trigger_scroll:
-        scroll_to_element("data-explorer", delay=500)
+        scroll_to_element()
         st.session_state.trigger_scroll = False
     
     if st.session_state.clicked_metric:
-        st.success(f"✨ **Showing:** {st.session_state.clicked_metric}")
+        st.success(f"✨ {st.session_state.clicked_metric}")
     
     filtered = df.copy()
     if st.session_state.selected_filter == 'At Risk':
@@ -265,12 +265,12 @@ if df is not None and model is not None:
         filtered = filtered[filtered['student_id'].astype(str).str.contains(search_id, case=False)]
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    st.info(f"📊 Displaying **{len(filtered)}** of **{len(df)}** total students")
+    st.info(f"📊 {len(filtered)} of {len(df)} students")
     st.dataframe(filtered, use_container_width=True, height=400)
     
     csv = filtered.to_csv(index=False).encode('utf-8')
-    st.download_button(f"📥 Download {len(filtered)} Records", csv,
-        f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M")}.csv', 'text/csv', use_container_width=True)
+    st.download_button(f"📥 Download {len(filtered)}", csv,
+        f'data_{datetime.now().strftime("%Y%m%d_%H%M")}.csv', 'text/csv', use_container_width=True)
 
 else:
     st.error("❌ Failed to load data")
