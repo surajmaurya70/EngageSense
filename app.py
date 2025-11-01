@@ -8,186 +8,298 @@ import plotly.graph_objects as go
 
 # Page Configuration
 st.set_page_config(
-    page_title="EngageSense Analytics",
-    page_icon="📊",
+    page_title="EngageSense | By Suraj Maurya",
+    page_icon="🎯",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Premium CSS Styling
+# Ultra Premium CSS
 st.markdown("""
     <style>
-    /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Global Styles */
     * {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
+    /* Main Background - Clean Gradient */
     .main {
-        padding: 0rem 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        padding: 0 !important;
     }
     
     .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding: 2rem 3rem !important;
         max-width: 1400px;
     }
     
-    /* Header Styles */
-    .main-header {
+    /* Premium Header Card */
+    .header-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        padding: 3rem 2rem;
         text-align: center;
-        padding: 2rem 0;
         margin-bottom: 2rem;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
     
     .main-title {
-        font-size: 3rem;
-        font-weight: 700;
-        background: linear-gradient(120deg, #fff 0%, #a8edea 100%);
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 0.5rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        letter-spacing: -1px;
     }
     
     .subtitle {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 300;
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.7);
+        font-weight: 400;
+        margin-bottom: 1rem;
     }
     
-    /* Metric Cards */
+    .creator-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Premium Metric Cards */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
         backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        transition: all 0.3s ease;
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.15);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     [data-testid="stMetric"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        border-color: rgba(255,255,255,0.25);
     }
     
     [data-testid="stMetric"] label {
-        color: rgba(255, 255, 255, 0.8) !important;
-        font-size: 0.9rem !important;
+        color: rgba(255,255,255,0.9) !important;
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        color: #fff !important;
-        font-size: 2.5rem !important;
+        color: #ffffff !important;
+        font-size: 2.8rem !important;
         font-weight: 700 !important;
     }
     
-    /* Section Headers */
-    h2, h3 {
-        color: #fff !important;
-        font-weight: 600 !important;
-        margin-top: 2rem !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+        color: rgba(255,255,255,0.8) !important;
     }
     
-    /* Tabs */
+    /* Section Styling */
+    h2 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.8rem !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        letter-spacing: -0.5px !important;
+    }
+    
+    /* Leaderboard Cards */
+    .leaderboard-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .leaderboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .medal {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .student-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0.5rem 0;
+    }
+    
+    .student-score {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.7);
+        font-weight: 500;
+    }
+    
+    /* Tabs Premium Style */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 1rem;
-        background: rgba(255, 255, 255, 0.1);
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.05);
         padding: 0.5rem;
-        border-radius: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
-        color: rgba(255, 255, 255, 0.7);
-        border-radius: 8px;
+        color: rgba(255,255,255,0.6);
+        border-radius: 10px;
         padding: 0.75rem 1.5rem;
         font-weight: 600;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.9);
     }
     
     .stTabs [aria-selected="true"] {
-        background: rgba(255, 255, 255, 0.2) !important;
-        color: #fff !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #ffffff !important;
     }
     
-    /* Info boxes */
+    /* Info Alert */
     .stAlert {
-        background: rgba(255, 255, 255, 0.15) !important;
+        background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%) !important;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        color: #fff !important;
+        border: 1px solid rgba(102,126,234,0.3) !important;
+        border-radius: 12px;
+        color: #ffffff !important;
     }
     
-    /* Selectbox and inputs */
-    .stSelectbox, .stSlider, .stTextInput {
-        color: #fff !important;
+    /* Form Elements */
+    .stSelectbox label, .stSlider label, .stTextInput label {
+        color: rgba(255,255,255,0.9) !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
     }
     
     [data-baseweb="select"] {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
         border-radius: 10px;
+    }
+    
+    [data-baseweb="select"] > div {
+        color: #ffffff !important;
+    }
+    
+    .stTextInput input {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        border-radius: 10px;
+        color: #ffffff !important;
     }
     
     /* Dataframe */
     .stDataFrame {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
-    /* Download button */
+    /* Download Button */
     .stDownloadButton button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
     }
     
     .stDownloadButton button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
     }
     
     /* Footer */
-    .footer {
+    .premium-footer {
         text-align: center;
-        padding: 2rem;
-        margin-top: 3rem;
-        color: rgba(255, 255, 255, 0.8);
-        background: rgba(255, 255, 255, 0.1);
+        padding: 2.5rem 2rem;
+        margin-top: 4rem;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     }
     
-    /* Hide Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    .footer-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+    }
+    
+    .footer-creator {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 0.5rem;
+    }
+    
+    .footer-tech {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+        margin-top: 0.75rem;
+    }
+    
+    /* Hide Streamlit Elements */
+    #MainMenu, footer, header {visibility: hidden;}
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Premium Header
 st.markdown("""
-    <div class="main-header">
-        <h1 class="main-title">📊 EngageSense</h1>
-        <p class="subtitle">AI-Powered Student Engagement Analytics Platform</p>
+    <div class="header-card">
+        <div class="main-title">🎯 EngageSense</div>
+        <div class="subtitle">AI-Powered Student Engagement Analytics Platform</div>
+        <div class="creator-badge">Created by Suraj Maurya</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -217,7 +329,6 @@ def load_data_from_mysql():
         conn.close()
         return df, "mysql"
     except mysql.connector.Error as e:
-        st.info(f"💾 Using demo CSV data (MySQL: {e.errno})")
         return load_data_from_csv(), "csv"
 
 @st.cache_data
@@ -247,51 +358,50 @@ if df is not None and model is not None:
         feature_cols = ['login_count', 'time_spent', 'quiz_attempts']
         features_array = df[feature_cols].values
         df['anomaly'] = model.predict(features_array)
-        df['anomaly_flag'] = df['anomaly'].apply(lambda x: '🚨 Anomaly' if x == -1 else '✅ Normal')
+        df['anomaly_flag'] = df['anomaly'].apply(lambda x: '🚨 At Risk' if x == -1 else '✅ Active')
     except Exception as e:
-        st.error(f"Error: {e}")
         df['anomaly'] = 1
-        df['anomaly_flag'] = '✅ Normal'
+        df['anomaly_flag'] = '✅ Active'
     
-    # Top Metrics with Icons
-    st.markdown("## 📊 Real-Time Analytics Dashboard")
+    # Top Metrics
+    st.markdown("## 📊 Real-Time Dashboard")
     
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric(
-            label="⭐ Avg Engagement",
+            label="⭐ AVG ENGAGEMENT",
             value=f"{df['engagement_score'].mean():.2f}",
-            delta="+0.3 from last week"
+            delta="+0.3 vs last week"
         )
     
     with col2:
-        anomaly_count = (df['anomaly_flag'] == '🚨 Anomaly').sum()
+        anomaly_count = df[df['anomaly'] == -1].shape[0]
         st.metric(
-            label="🚨 Anomalies",
+            label="🚨 AT-RISK STUDENTS",
             value=anomaly_count,
-            delta=f"{(anomaly_count/len(df)*100):.0f}% of total",
+            delta=f"{(anomaly_count/len(df)*100):.0f}% of cohort",
             delta_color="inverse"
         )
     
     with col3:
         st.metric(
-            label="👥 Active Students",
+            label="👥 ACTIVE STUDENTS",
             value=len(df),
             delta="+5 this month"
         )
     
     with col4:
         st.metric(
-            label="⏱️ Avg Time (hrs)",
+            label="⏱️ AVG TIME (HRS)",
             value=f"{df['time_spent'].mean():.1f}",
-            delta="+2.3 hrs"
+            delta="+2.3 hrs/week"
         )
     
-    # Leaderboard Section
+    # Leaderboard
     st.markdown("## 🏆 Top Performers")
-    top_5 = df.nlargest(5, 'engagement_score')[['student_id', 'engagement_score', 'anomaly_flag']]
     
+    top_5 = df.nlargest(5, 'engagement_score')
     cols = st.columns(5)
     medals = ['🥇', '🥈', '🥉', '🏅', '🏅']
     
@@ -299,19 +409,17 @@ if df is not None and model is not None:
         with col:
             student = top_5.iloc[idx]
             st.markdown(f"""
-                <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                    <div style="font-size: 2rem;">{medal}</div>
-                    <div style="font-size: 1.2rem; font-weight: 600; color: #fff;">{student['student_id']}</div>
-                    <div style="font-size: 1rem; color: rgba(255,255,255,0.8);">Score: {student['engagement_score']:.2f}</div>
+                <div class="leaderboard-card">
+                    <div class="medal">{medal}</div>
+                    <div class="student-name">{student['student_id']}</div>
+                    <div class="student-score">Score: {student['engagement_score']:.2f}</div>
                 </div>
             """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    # Charts
+    st.markdown("## 📈 Analytics & Insights")
     
-    # Interactive Charts
-    st.markdown("## 📈 Visual Insights")
-    
-    tab1, tab2, tab3 = st.tabs(["📊 Distribution Analysis", "🔍 Anomaly Detection", "📉 Performance Trends"])
+    tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔍 Anomaly Detection", "📉 Trends"])
     
     with tab1:
         col1, col2 = st.columns(2)
@@ -322,14 +430,14 @@ if df is not None and model is not None:
                 x='engagement_score',
                 nbins=25,
                 title='Engagement Score Distribution',
-                color_discrete_sequence=['#667eea'],
-                template='plotly_dark'
+                color_discrete_sequence=['#667eea']
             )
             fig1.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font_color='white',
-                title_font_size=18
+                font=dict(color='white', size=12),
+                title_font_size=16,
+                showlegend=False
             )
             st.plotly_chart(fig1, use_container_width=True)
         
@@ -338,16 +446,15 @@ if df is not None and model is not None:
             fig2 = px.pie(
                 values=anomaly_counts.values,
                 names=anomaly_counts.index,
-                title='Student Status Distribution',
+                title='Student Status',
                 color_discrete_sequence=['#2ecc71', '#e74c3c'],
-                template='plotly_dark',
-                hole=0.4
+                hole=0.5
             )
             fig2.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font_color='white',
-                title_font_size=18
+                font=dict(color='white', size=12),
+                title_font_size=16
             )
             st.plotly_chart(fig2, use_container_width=True)
     
@@ -359,49 +466,44 @@ if df is not None and model is not None:
             color='anomaly_flag',
             size='login_count',
             hover_data=['student_id', 'assignment_score'],
-            title='Engagement vs Time Spent Analysis',
-            color_discrete_map={'✅ Normal': '#2ecc71', '🚨 Anomaly': '#e74c3c'},
-            template='plotly_dark'
+            title='Engagement vs Time Analysis',
+            color_discrete_map={'✅ Active': '#2ecc71', '🚨 At Risk': '#e74c3c'}
         )
         fig3.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font_color='white',
-            title_font_size=18
+            font=dict(color='white', size=12),
+            title_font_size=16
         )
         st.plotly_chart(fig3, use_container_width=True)
     
     with tab3:
-        # Top 10 students bar chart
         top_10 = df.nlargest(10, 'engagement_score')
         fig4 = px.bar(
             top_10,
             x='student_id',
             y='engagement_score',
             color='anomaly_flag',
-            title='Top 10 Students Performance',
-            color_discrete_map={'✅ Normal': '#2ecc71', '🚨 Anomaly': '#e74c3c'},
-            template='plotly_dark'
+            title='Top 10 Students',
+            color_discrete_map={'✅ Active': '#2ecc71', '🚨 At Risk': '#e74c3c'}
         )
         fig4.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font_color='white',
-            title_font_size=18
+            font=dict(color='white', size=12),
+            title_font_size=16
         )
         st.plotly_chart(fig4, use_container_width=True)
     
-    st.markdown("---")
-    
-    # Advanced Filters
-    st.markdown("## 🎓 Student Data Explorer")
+    # Filters
+    st.markdown("## 🎓 Student Explorer")
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        filter_anomaly = st.selectbox(
+        filter_status = st.selectbox(
             "🔍 Filter by Status",
-            ["All Students", "✅ Normal Only", "🚨 Anomalies Only"]
+            ["All Students", "✅ Active Only", "🚨 At Risk Only"]
         )
     
     with col2:
@@ -413,15 +515,15 @@ if df is not None and model is not None:
         )
     
     with col3:
-        search_id = st.text_input("🔎 Search Student ID", "")
+        search_id = st.text_input("🔎 Search Student", "")
     
     # Apply filters
     filtered_df = df.copy()
     
-    if filter_anomaly == "✅ Normal Only":
-        filtered_df = filtered_df[filtered_df['anomaly_flag'] == '✅ Normal']
-    elif filter_anomaly == "🚨 Anomalies Only":
-        filtered_df = filtered_df[filtered_df['anomaly_flag'] == '🚨 Anomaly']
+    if filter_status == "✅ Active Only":
+        filtered_df = filtered_df[filtered_df['anomaly_flag'] == '✅ Active']
+    elif filter_status == "🚨 At Risk Only":
+        filtered_df = filtered_df[filtered_df['anomaly_flag'] == '🚨 At Risk']
     
     filtered_df = filtered_df[filtered_df['engagement_score'] >= min_score]
     
@@ -432,36 +534,36 @@ if df is not None and model is not None:
     
     st.info(f"📋 Showing **{len(filtered_df)}** of **{len(df)}** students")
     
-    # Styled dataframe
-    def highlight_anomaly(row):
-        if row['anomaly_flag'] == '🚨 Anomaly':
-            return ['background-color: #ffebee'] * len(row)
-        else:
-            return ['background-color: #e8f5e9'] * len(row)
+    # Dataframe
+    def highlight_row(row):
+        if row['anomaly_flag'] == '🚨 At Risk':
+            return ['background-color: #ffe6e6'] * len(row)
+        return ['background-color: #e6ffe6'] * len(row)
     
-    styled_df = filtered_df.style.apply(highlight_anomaly, axis=1)
+    styled_df = filtered_df.style.apply(highlight_row, axis=1)
     st.dataframe(styled_df, use_container_width=True, height=400)
     
-    # Download section
+    # Download
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
         csv = filtered_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download Filtered Data",
+            label="📥 Export Data (CSV)",
             data=csv,
-            file_name=f'engagesense_export_{pd.Timestamp.now().strftime("%Y%m%d")}.csv',
+            file_name=f'engagesense_data_{pd.Timestamp.now().strftime("%Y%m%d")}.csv',
             mime='text/csv',
             use_container_width=True
         )
 
 else:
-    st.error("❌ Failed to load data or model")
+    st.error("❌ Failed to load data")
 
-# Premium Footer
+# Footer
 st.markdown("""
-    <div class="footer">
-        <p style="font-size: 1rem; font-weight: 600;">EngageSense Analytics Platform</p>
-        <p style="font-size: 0.9rem;">Developed by <strong>Suraj Maurya</strong> | © 2025</p>
-        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Powered by Streamlit · Machine Learning · Plotly</p>
+    <div class="premium-footer">
+        <div class="footer-title">EngageSense Analytics</div>
+        <div class="footer-creator">Created & Developed by <strong>Suraj Maurya</strong></div>
+        <div class="footer-tech">Powered by Machine Learning · Streamlit · Python · Plotly</div>
+        <div class="footer-tech" style="margin-top: 0.5rem;">© 2025 All Rights Reserved</div>
     </div>
 """, unsafe_allow_html=True)
