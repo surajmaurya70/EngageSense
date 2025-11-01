@@ -13,8 +13,6 @@ if 'selected_filter' not in st.session_state:
     st.session_state.selected_filter = 'All'
 if 'clicked_metric' not in st.session_state:
     st.session_state.clicked_metric = None
-if 'scroll_trigger' not in st.session_state:
-    st.session_state.scroll_trigger = False
 
 # Theme colors
 def get_theme():
@@ -226,51 +224,51 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click any metric to filter Student Data Explorer below")
+    st.caption("👆 Click any button below metrics to filter data")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
     anomaly_count = (df['anomaly'] == -1).sum()
-    custom_risk = df['custom_risk'].sum()
+    custom_risk_count = df['custom_risk'].sum()
     active_count = (df['anomaly_flag'] == 'Active').sum()
+    avg_score = df['engagement_score'].mean()
     
-    # Clickable metrics with buttons below
+    # Metrics with buttons
     with col1:
         st.metric("Total Students", len(df), "+5")
         if st.button("📚 View All", key="m1", use_container_width=True):
             st.session_state.selected_filter = 'All'
             st.session_state.clicked_metric = 'Total Students (All 40)'
-            st.session_state.scroll_trigger = True
+            st.rerun()
     
     with col2:
         st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
         if st.button("⚠️ Show At Risk", key="m2", use_container_width=True):
             st.session_state.selected_filter = 'At Risk'
             st.session_state.clicked_metric = f'At Risk Students ({anomaly_count})'
-            st.session_state.scroll_trigger = True
+            st.rerun()
     
     with col3:
-        st.metric("Below Threshold", custom_risk, f"{(custom_risk/len(df)*100):.0f}%")
+        st.metric("Below Threshold", custom_risk_count, f"{(custom_risk_count/len(df)*100):.0f}%")
         if st.button("🔴 Show Below", key="m3", use_container_width=True):
             st.session_state.selected_filter = 'Below Threshold'
-            st.session_state.clicked_metric = f'Below Threshold ({custom_risk})'
-            st.session_state.scroll_trigger = True
+            st.session_state.clicked_metric = f'Below Threshold ({custom_risk_count})'
+            st.rerun()
     
     with col4:
         st.metric("Active Students", active_count, f"{(active_count/len(df)*100):.0f}%")
         if st.button("✅ Show Active", key="m4", use_container_width=True):
             st.session_state.selected_filter = 'Active'
             st.session_state.clicked_metric = f'Active Students ({active_count})'
-            st.session_state.scroll_trigger = True
+            st.rerun()
     
     with col5:
-        avg = df['engagement_score'].mean()
-        above_avg = (df['engagement_score'] >= avg).sum()
-        st.metric("Avg Engagement", f"{avg:.2f}", "+0.3")
+        above_avg = (df['engagement_score'] >= avg_score).sum()
+        st.metric("Avg Engagement", f"{avg_score:.2f}", "+0.3")
         if st.button("📊 Above Avg", key="m5", use_container_width=True):
             st.session_state.selected_filter = 'Above Average'
             st.session_state.clicked_metric = f'Above Average ({above_avg})'
-            st.session_state.scroll_trigger = True
+            st.rerun()
     
     # Quick Insights
     st.markdown("## 📈 Quick Insights")
@@ -285,7 +283,7 @@ if df is not None and model is not None:
         st.warning(f"**⚠️ Needs Attention**\n\n{bottom_student['student_id']} - {bottom_student['engagement_score']:.2f}")
     
     with col3:
-        active_pct = ((df['anomaly_flag'] == 'Active').sum() / len(df) * 100)
+        active_pct = (active_count / len(df) * 100)
         st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count} students)")
     
     if show_charts:
@@ -345,14 +343,16 @@ if df is not None and model is not None:
                               margin=dict(l=40, r=40, t=60, b=40))
             st.plotly_chart(fig5, use_container_width=True, key="chart5")
     
-    # Data Table
+    # Data Table - This will be at bottom and visible after button click
     st.markdown("## 📋 Student Data Explorer")
     
+    # Show what's currently filtered
     if st.session_state.clicked_metric:
-        st.success(f"✨ **Currently Showing:** {st.session_state.clicked_metric}")
+        st.success(f"✨ **Showing:** {st.session_state.clicked_metric}")
     
     filtered = df.copy()
     
+    # Apply filters based on selection
     if st.session_state.selected_filter == 'At Risk':
         filtered = filtered[filtered['anomaly_flag'] == 'At Risk']
     elif st.session_state.selected_filter == 'Active':
@@ -360,8 +360,9 @@ if df is not None and model is not None:
     elif st.session_state.selected_filter == 'Below Threshold':
         filtered = filtered[filtered['custom_risk'] == True]
     elif st.session_state.selected_filter == 'Above Average':
-        filtered = filtered[filtered['engagement_score'] >= df['engagement_score'].mean()]
+        filtered = filtered[filtered['engagement_score'] >= avg_score]
     
+    # Manual filters
     filtered = filtered[filtered['engagement_score'] >= min_score]
     
     if search_id:
