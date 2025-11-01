@@ -10,6 +10,8 @@ st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout=
 # Session state
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
+if 'scroll_to' not in st.session_state:
+    st.session_state.scroll_to = None
 
 # Theme colors
 def get_theme():
@@ -134,6 +136,43 @@ h2 {{
     animation: fadeInUp 1s ease;
 }}
 
+.metric-card {{
+    background: {t['surface']};
+    border: 2px solid {t['border']};
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}}
+
+.metric-card:hover {{
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(26, 115, 232, 0.3);
+    border-color: #1a73e8;
+}}
+
+.metric-value {{
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: {t['text']};
+    margin: 0.5rem 0;
+}}
+
+.metric-label {{
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: {t['secondary']};
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}}
+
+.metric-subtitle {{
+    font-size: 0.75rem;
+    color: {t['secondary']};
+    margin-top: 0.5rem;
+}}
+
 #MainMenu, footer, header {{ visibility: hidden; }}
 </style>
 """, unsafe_allow_html=True)
@@ -227,40 +266,71 @@ if df is not None and model is not None:
     
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
-    # Anchor points for scrolling
-    st.markdown('<div id="dashboard"></div>', unsafe_allow_html=True)
     st.markdown("## 📊 Dashboard Overview")
+    st.caption("Click on any metric to view detailed data below")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
+    anomaly_count = (df['anomaly'] == -1).sum()
+    custom_risk = df['custom_risk'].sum()
+    avg_score = df['engagement_score'].mean()
+    avg_time = df['time_spent'].mean()
+    
     with col1:
-        if st.button(f"**Total Students**\n\n{len(df)}", key="metric1", use_container_width=True):
-            st.markdown('<script>document.getElementById("data-table").scrollIntoView({behavior: "smooth"});</script>', unsafe_allow_html=True)
-        st.caption("👆 Click to view all students")
+        if st.button("", key="btn_total", help="Click to view all students"):
+            st.session_state.scroll_to = "data_table"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Total Students</div>
+            <div class="metric-value">{len(df)}</div>
+            <div class="metric-subtitle">Click to view all ↓</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        anomaly_count = (df['anomaly'] == -1).sum()
-        if st.button(f"**AI At Risk**\n\n{anomaly_count}", key="metric2", use_container_width=True):
-            st.session_state.filter_status = "At Risk Only"
-        st.caption(f"{(anomaly_count/len(df)*100):.0f}% of total")
+        if st.button("", key="btn_risk", help="Click to filter at-risk"):
+            filter_status = "At Risk Only"
+            st.session_state.scroll_to = "data_table"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">AI At Risk</div>
+            <div class="metric-value">{anomaly_count}</div>
+            <div class="metric-subtitle">{(anomaly_count/len(df)*100):.0f}% of total</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
-        custom_risk = df['custom_risk'].sum()
-        if st.button(f"**Below Threshold**\n\n{custom_risk}", key="metric3", use_container_width=True):
-            pass
-        st.caption(f"{(custom_risk/len(df)*100):.0f}% flagged")
+        if st.button("", key="btn_threshold", help="Below threshold"):
+            st.session_state.scroll_to = "data_table"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Below Threshold</div>
+            <div class="metric-value">{custom_risk}</div>
+            <div class="metric-subtitle">{(custom_risk/len(df)*100):.0f}% flagged</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col4:
-        avg_score = df['engagement_score'].mean()
-        if st.button(f"**Avg Engagement**\n\n{avg_score:.2f}", key="metric4", use_container_width=True):
-            pass
-        st.caption("↑ +0.3 from last week")
+        if st.button("", key="btn_avg", help="Average engagement"):
+            st.session_state.scroll_to = "charts"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Avg Engagement</div>
+            <div class="metric-value">{avg_score:.2f}</div>
+            <div class="metric-subtitle">↑ +0.3 this week</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col5:
-        avg_time = df['time_spent'].mean()
-        if st.button(f"**Avg Time**\n\n{avg_time:.0f}h", key="metric5", use_container_width=True):
-            pass
-        st.caption("↑ +2.3 hours")
+        if st.button("", key="btn_time", help="Average time"):
+            st.session_state.scroll_to = "charts"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Avg Time</div>
+            <div class="metric-value">{avg_time:.0f}h</div>
+            <div class="metric-subtitle">↑ +2.3 hours</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Quick Insights
     st.markdown("## 📈 Quick Insights")
@@ -279,10 +349,11 @@ if df is not None and model is not None:
         active_count = (df['anomaly_flag'] == 'Active').sum()
         st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count} students)")
     
+    # Charts section
     if show_charts:
+        st.markdown('<div id="charts"></div>', unsafe_allow_html=True)
         st.markdown("## 📈 Visual Analytics")
         
-        # 4 TABS
         tab1, tab2, tab3, tab4 = st.tabs([
             "📊 Distribution", 
             "🔍 Anomaly Detection", 
@@ -317,7 +388,6 @@ if df is not None and model is not None:
             st.plotly_chart(fig3, use_container_width=True)
         
         with tab3:
-            # Login Count Analysis
             fig4 = px.bar(df.nlargest(15, 'login_count'), x='student_id', y='login_count',
                         title='📈 Top 15 Students by Login Count',
                         color='login_count', color_continuous_scale='Blues')
@@ -325,7 +395,6 @@ if df is not None and model is not None:
             st.plotly_chart(fig4, use_container_width=True)
         
         with tab4:
-            # Quiz vs Assignment Performance
             fig5 = px.scatter(df, x='quiz_attempts', y='assignment_score',
                             size='engagement_score', color='anomaly_flag',
                             hover_data=['student_id'],
@@ -334,9 +403,14 @@ if df is not None and model is not None:
             fig5.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
             st.plotly_chart(fig5, use_container_width=True)
     
-    # Data Table with anchor
-    st.markdown('<div id="data-table"></div>', unsafe_allow_html=True)
+    # Data Table
+    st.markdown('<div id="data_table"></div>', unsafe_allow_html=True)
     st.markdown("## 📋 Student Data Explorer")
+    
+    # Auto scroll if triggered
+    if st.session_state.scroll_to:
+        st.info(f"📍 Scrolled to: {st.session_state.scroll_to.replace('_', ' ').title()}")
+        st.session_state.scroll_to = None
     
     filtered = df.copy()
     
