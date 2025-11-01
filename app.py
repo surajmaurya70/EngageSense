@@ -78,10 +78,16 @@ if df is not None and model is not None:
             (df['assignment_score'] / 100) * 0.15 * 10
         )
     
-    # Predict anomalies
-    features = df[['login_count', 'time_spent', 'quiz_attempts', 'forum_posts', 'assignment_score']]
-    df['anomaly'] = model.predict(features)
-    df['anomaly_flag'] = df['anomaly'].apply(lambda x: 'Anomaly' if x == -1 else 'Normal')
+    # Predict anomalies - use numpy array to avoid feature name mismatch
+    try:
+        feature_cols = ['login_count', 'time_spent', 'quiz_attempts', 'forum_posts', 'assignment_score']
+        features_array = df[feature_cols].values
+        df['anomaly'] = model.predict(features_array)
+        df['anomaly_flag'] = df['anomaly'].apply(lambda x: 'Anomaly' if x == -1 else 'Normal')
+    except Exception as e:
+        st.error(f"Error in anomaly prediction: {e}")
+        df['anomaly'] = 1
+        df['anomaly_flag'] = 'Normal'
     
     # Top Metrics
     st.markdown("## 📊 Top: Engagement Summary")
@@ -215,4 +221,3 @@ st.markdown("""
         <p>EngageSense © 2025 | Developed by Suraj Maurya</p>
     </div>
 """, unsafe_allow_html=True)
-
