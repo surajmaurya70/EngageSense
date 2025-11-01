@@ -1,3 +1,9 @@
+"""
+EngageSense - Premium Analytics Dashboard
+Inspired by Osmo, Wealthsimple & ClickUp Design
+Developed by Suraj Maurya
+"""
+
 import streamlit as st
 import pandas as pd
 import joblib
@@ -9,37 +15,42 @@ from datetime import datetime
 
 # Page Config
 st.set_page_config(
-    page_title="EngageSense Analytics",
+    page_title="EngageSense — AI Student Engagement Analytics",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Premium CSS
+# Premium CSS (Osmo + Wealthsimple + ClickUp Inspired)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    * { font-family: 'Inter', sans-serif; }
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
     
+    /* Dark Dramatic Background (Osmo-inspired) */
     .stApp {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background: linear-gradient(180deg, #0b0b0d 0%, #070708 120%);
+    }
+    
+    .main {
+        padding: 0 !important;
     }
     
     .block-container {
-        padding: 2rem 2.5rem !important;
+        padding: 2.5rem 3rem !important;
         max-width: 1400px;
     }
     
-    /* Header */
-    .main-header {
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.1);
+    /* Header Section */
+    .premium-header {
+        background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
         border-radius: 16px;
-        padding: 2rem;
+        padding: 2.5rem;
         margin-bottom: 2rem;
-        text-align: center;
+        box-shadow: 0 6px 30px rgba(3,6,12,0.6);
     }
     
     .header-title {
@@ -47,151 +58,239 @@ st.markdown("""
         font-weight: 800;
         color: #ffffff;
         margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+        text-shadow: 0 8px 40px rgba(0,0,0,0.6);
     }
     
     .header-subtitle {
         font-size: 1rem;
-        color: rgba(255,255,255,0.7);
+        color: #9aa4b2;
+        font-weight: 500;
     }
     
-    /* Metrics */
+    .kicker {
+        display: inline-block;
+        background: linear-gradient(90deg, #2fe39a, #69f0b6);
+        color: #041014;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 1rem;
+    }
+    
+    /* Metric Cards (Clean Trust - Wealthsimple inspired) */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 14px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 1.8rem 1.5rem;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(6px);
     }
     
     [data-testid="stMetric"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.12);
+        box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+        transform: translateY(-4px);
     }
     
     [data-testid="stMetric"] label {
-        color: rgba(255,255,255,0.8) !important;
-        font-size: 0.9rem !important;
+        color: #9aa4b2 !important;
+        font-size: 0.85rem !important;
         font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
         color: #ffffff !important;
-        font-size: 2.5rem !important;
-        font-weight: 800 !important;
-    }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-        border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    [data-testid="stSidebar"] h3 {
-        color: #ffffff !important;
+        font-size: 2.8rem !important;
         font-weight: 700 !important;
     }
     
-    /* Tabs */
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+        color: #2fe39a !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Section Headers */
+    h2 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.5rem !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        letter-spacing: -0.3px !important;
+    }
+    
+    /* Tabs (ClickUp inspired - productive look) */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.5rem;
-        background: rgba(255,255,255,0.05);
-        padding: 0.5rem;
-        border-radius: 10px;
+        gap: 0;
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
-        color: rgba(255,255,255,0.6);
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
+        color: #9aa4b2;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 1rem 1.5rem;
         font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #ffffff;
+        background: rgba(255,255,255,0.03);
     }
     
     .stTabs [aria-selected="true"] {
-        background: rgba(255,255,255,0.15) !important;
-        color: #ffffff !important;
+        color: #2fe39a !important;
+        border-bottom-color: #2fe39a !important;
+        background: transparent !important;
     }
     
-    h2 {
+    /* Sidebar (Clean & Modern) */
+    [data-testid="stSidebar"] {
+        background: #0b0b0d;
+        border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    
+    [data-testid="stSidebar"] h3 {
         color: #ffffff !important;
+        font-size: 1rem !important;
         font-weight: 700 !important;
-        margin: 2rem 0 1rem 0 !important;
+        margin-top: 1.5rem !important;
     }
     
+    [data-testid="stSidebar"] label {
+        color: #9aa4b2 !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Form Elements */
+    .stSelectbox [data-baseweb="select"],
+    .stTextInput input,
+    .stSlider {
+        background: rgba(255,255,255,0.02) !important;
+        border: 1px solid rgba(255,255,255,0.06) !important;
+        border-radius: 8px !important;
+        color: #e6eef6 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"]:hover,
+    .stTextInput input:hover {
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+    
+    /* Alert Boxes */
     .stAlert {
-        background: rgba(255,255,255,0.1) !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        border-radius: 10px !important;
-        color: #ffffff !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.06) !important;
+        border-radius: 12px !important;
+        color: #e6eef6 !important;
     }
     
+    /* Dataframe */
     .stDataFrame {
+        border: 1px solid rgba(255,255,255,0.06);
         border-radius: 12px;
         overflow: hidden;
     }
     
+    /* Download Button (Green Accent - ClickUp style) */
+    .stDownloadButton button {
+        background: linear-gradient(90deg, #2fe39a, #69f0b6) !important;
+        color: #041014 !important;
+        border: none !important;
+        border-radius: 999px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 10px 30px rgba(47,227,154,0.15) !important;
+    }
+    
+    .stDownloadButton button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 36px rgba(47,227,154,0.25) !important;
+    }
+    
     /* Footer */
-    .footer {
+    .premium-footer {
         margin-top: 4rem;
         padding: 2rem;
         text-align: center;
-        background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
+        border-top: 1px solid rgba(255,255,255,0.06);
     }
     
     .footer-title {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
         color: #ffffff;
         margin-bottom: 0.5rem;
     }
     
     .footer-text {
-        color: rgba(255,255,255,0.7);
+        color: #9aa4b2;
         margin: 0.3rem 0;
+        font-size: 0.9rem;
     }
     
+    .creator-name {
+        color: #2fe39a;
+        font-weight: 700;
+    }
+    
+    /* Hide Streamlit Branding */
     #MainMenu, footer, header {visibility: hidden;}
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #0b0b0d;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.15);
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Header
 st.markdown("""
-    <div class="main-header">
-        <div class="header-title">📊 EngageSense Analytics</div>
-        <div class="header-subtitle">AI-Powered Student Engagement Monitoring Platform</div>
+    <div class="premium-header">
+        <div class="kicker">🔗 Now connected • MySQL & CSV</div>
+        <div class="header-title">Discover engagement patterns that matter.</div>
+        <div class="header-subtitle">AI-powered analytics that help educators detect learning gaps before they grow</div>
     </div>
 """, unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════
-# SIDEBAR - SETTINGS PANEL
-# ═══════════════════════════════════════════════════════════
+# Sidebar - Settings Panel
 with st.sidebar:
-    st.markdown("### ⚙️ Settings & Filters")
-    st.markdown("---")
-    
-    # Theme Selection
-    theme = st.selectbox(
-        "🎨 Color Theme",
-        ["Dark Blue (Default)", "Dark Purple", "Dark Green"],
-        help="Choose your preferred color theme"
-    )
-    
+    st.markdown("### ⚙️ Settings")
     st.markdown("---")
     
     # Data Source
-    st.markdown("### 📁 Data Source")
     data_source = st.radio(
-        "",
+        "📁 Data Source",
         ["CSV File", "MySQL Database"],
-        help="Select data source"
+        help="Select your data source"
     )
     
     st.markdown("---")
-    
-    # Filters
     st.markdown("### 🔍 Filters")
     
     filter_status = st.selectbox(
@@ -201,35 +300,24 @@ with st.sidebar:
     
     min_score = st.slider(
         "Min Engagement Score",
-        0.0, 10.0, 0.0,
-        help="Filter students by minimum score"
+        0.0, 10.0, 0.0
     )
     
     search_id = st.text_input(
         "Search Student ID",
-        placeholder="Enter Student ID..."
+        placeholder="e.g., S007"
     )
     
     st.markdown("---")
-    
-    # Chart Settings
-    st.markdown("### 📊 Chart Settings")
+    st.markdown("### 📊 Display")
     
     show_charts = st.checkbox("Show Charts", value=True)
     chart_height = st.slider("Chart Height", 300, 600, 400)
     
     st.markdown("---")
-    
-    # Export Options
-    st.markdown("### 📥 Export Options")
-    include_anomalies = st.checkbox("Include Anomalies Only", value=False)
-    
-    st.markdown("---")
     st.info(f"**Last Updated**  \n{datetime.now().strftime('%B %d, %Y')}")
 
-# ═══════════════════════════════════════════════════════════
-# LOAD DATA & MODEL
-# ═══════════════════════════════════════════════════════════
+# Load Functions
 @st.cache_resource
 def load_model():
     try:
@@ -283,10 +371,8 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    # ═══════════════════════════════════════════════════════════
-    # TOP METRICS
-    # ═══════════════════════════════════════════════════════════
-    st.markdown("## 📊 Dashboard Overview")
+    # Top Metrics
+    st.markdown("## 📊 Engagement Summary")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -295,7 +381,7 @@ if df is not None and model is not None:
     
     with col2:
         anomaly_count = (df['anomaly'] == -1).sum()
-        st.metric("At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
+        st.metric("At Risk", anomaly_count, f"-{anomaly_count}")
     
     with col3:
         st.metric("Avg Score", f"{df['engagement_score'].mean():.2f}", "+0.3")
@@ -303,9 +389,7 @@ if df is not None and model is not None:
     with col4:
         st.metric("Avg Time (hrs)", f"{df['time_spent'].mean():.1f}", "+2.3")
     
-    # ═══════════════════════════════════════════════════════════
-    # CHARTS (IF ENABLED)
-    # ═══════════════════════════════════════════════════════════
+    # Charts
     if show_charts:
         st.markdown("## 📈 Visual Analytics")
         
@@ -315,34 +399,64 @@ if df is not None and model is not None:
             col1, col2 = st.columns(2)
             
             with col1:
-                fig1 = px.histogram(df, x='engagement_score', nbins=25, title='Engagement Distribution', color_discrete_sequence=['#4a90e2'])
-                fig1.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+                fig1 = px.histogram(df, x='engagement_score', nbins=25, title='Engagement Distribution')
+                fig1.update_layout(
+                    plot_bgcolor='#0b0b0d',
+                    paper_bgcolor='#0b0b0d',
+                    font=dict(color='#9aa4b2'),
+                    title_font=dict(color='#ffffff'),
+                    height=chart_height
+                )
+                fig1.update_traces(marker_color='#2fe39a')
                 st.plotly_chart(fig1, use_container_width=True)
             
             with col2:
                 counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status', hole=0.5, color_discrete_sequence=['#50c878', '#ff6b6b'])
-                fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status', hole=0.5)
+                fig2.update_layout(
+                    plot_bgcolor='#0b0b0d',
+                    paper_bgcolor='#0b0b0d',
+                    font=dict(color='#9aa4b2'),
+                    title_font=dict(color='#ffffff'),
+                    height=chart_height
+                )
+                fig2.update_traces(marker=dict(colors=['#2fe39a', '#ff6a3d']))
                 st.plotly_chart(fig2, use_container_width=True)
         
         with tab2:
-            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag', size='login_count', 
-                            hover_data=['student_id'], title='Time vs Engagement', 
-                            color_discrete_map={'Active': '#50c878', 'At Risk': '#ff6b6b'})
-            fig3.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+            fig3 = px.scatter(
+                df, x='time_spent', y='engagement_score', color='anomaly_flag',
+                size='login_count', hover_data=['student_id'],
+                title='Time vs Engagement Analysis',
+                color_discrete_map={'Active': '#2fe39a', 'At Risk': '#ff6a3d'}
+            )
+            fig3.update_layout(
+                plot_bgcolor='#0b0b0d',
+                paper_bgcolor='#0b0b0d',
+                font=dict(color='#9aa4b2'),
+                title_font=dict(color='#ffffff'),
+                height=chart_height
+            )
             st.plotly_chart(fig3, use_container_width=True)
         
         with tab3:
             top_10 = df.nlargest(10, 'engagement_score')
-            fig4 = px.bar(top_10, x='student_id', y='engagement_score', color='anomaly_flag', title='Top 10 Students',
-                        color_discrete_map={'Active': '#50c878', 'At Risk': '#ff6b6b'})
-            fig4.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='white'), height=chart_height)
+            fig4 = px.bar(
+                top_10, x='student_id', y='engagement_score',
+                color='anomaly_flag', title='Top 10 Students',
+                color_discrete_map={'Active': '#2fe39a', 'At Risk': '#ff6a3d'}
+            )
+            fig4.update_layout(
+                plot_bgcolor='#0b0b0d',
+                paper_bgcolor='#0b0b0d',
+                font=dict(color='#9aa4b2'),
+                title_font=dict(color='#ffffff'),
+                height=chart_height
+            )
             st.plotly_chart(fig4, use_container_width=True)
     
-    # ═══════════════════════════════════════════════════════════
-    # DATA TABLE
-    # ═══════════════════════════════════════════════════════════
-    st.markdown("## 📋 Student Data")
+    # Data Table
+    st.markdown("## 📋 Student Data Explorer")
     
     # Apply filters
     filtered = df.copy()
@@ -364,21 +478,18 @@ if df is not None and model is not None:
     # Highlight rows
     def highlight_row(row):
         if row['anomaly_flag'] == 'At Risk':
-            return ['background-color: rgba(255, 107, 107, 0.2)'] * len(row)
-        return ['background-color: rgba(80, 200, 120, 0.1)'] * len(row)
+            return ['background-color: rgba(255, 106, 61, 0.1)'] * len(row)
+        return ['background-color: rgba(47, 227, 154, 0.05)'] * len(row)
     
     styled_df = filtered.style.apply(highlight_row, axis=1)
     st.dataframe(styled_df, use_container_width=True, height=400)
     
-    # ═══════════════════════════════════════════════════════════
-    # EXPORT
-    # ═══════════════════════════════════════════════════════════
+    # Export
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
-        export_df = filtered[filtered['anomaly'] == -1] if include_anomalies else filtered
-        csv = export_df.to_csv(index=False).encode('utf-8')
+        csv = filtered.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label=f"📥 Export {len(export_df)} Records",
+            label=f"📥 Export {len(filtered)} Records",
             data=csv,
             file_name=f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
             mime='text/csv',
@@ -388,14 +499,12 @@ if df is not None and model is not None:
 else:
     st.error("❌ Failed to load data or model")
 
-# ═══════════════════════════════════════════════════════════
-# FOOTER
-# ═══════════════════════════════════════════════════════════
+# Footer
 st.markdown("""
-    <div class="footer">
+    <div class="premium-footer">
         <div class="footer-title">EngageSense Analytics</div>
-        <div class="footer-text">Developed by <strong>Suraj Maurya</strong></div>
-        <div class="footer-text">Machine Learning · Python · Streamlit · Plotly</div>
+        <div class="footer-text">Developed by <span class="creator-name">Suraj Maurya</span></div>
+        <div class="footer-text">AI-Powered · Privacy-First · Works with any LMS</div>
         <div class="footer-text">© 2025 All Rights Reserved</div>
     </div>
 """, unsafe_allow_html=True)
