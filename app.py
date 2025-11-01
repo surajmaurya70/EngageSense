@@ -2,36 +2,27 @@ import streamlit as st
 import pandas as pd
 import joblib
 import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime, timedelta
-import numpy as np
+from datetime import datetime
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
-# Session state for theme
+# Session state
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
 
-# Get theme colors
-def get_theme_colors():
+# Theme colors
+def get_theme():
     if st.session_state.theme == 'dark':
-        return {
-            'bg': '#1a1a1a', 'surface': '#2d2d2d', 'text': '#e0e0e0',
-            'secondary': '#9e9e9e', 'border': '#404040'
-        }
-    else:
-        return {
-            'bg': '#f8f9fa', 'surface': '#ffffff', 'text': '#202124',
-            'secondary': '#5f6368', 'border': '#e0e0e0'
-        }
+        return {'bg': '#1a1a1a', 'surface': '#2d2d2d', 'text': '#e0e0e0', 'secondary': '#9e9e9e', 'border': '#404040'}
+    return {'bg': '#f8f9fa', 'surface': '#ffffff', 'text': '#202124', 'secondary': '#5f6368', 'border': '#e0e0e0'}
 
-t = get_theme_colors()
+t = get_theme()
 
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-* {{ font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }}
-.stApp {{ background: {t['bg']}; color: {t['text']}; }}
+* {{ font-family: 'Inter', sans-serif; }}
+.stApp {{ background: {t['bg']}; }}
 
 .main-header {{
     background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
@@ -43,8 +34,7 @@ st.markdown(f"""
 .header-content {{ display: flex; align-items: center; gap: 1rem; }}
 .logo {{ width: 60px; height: 60px; background: white; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; font-weight: 800; color: #1a73e8;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15); }}
+    font-size: 2rem; font-weight: 800; color: #1a73e8; box-shadow: 0 6px 12px rgba(0,0,0,0.15); }}
 .title {{ font-size: 2.25rem; font-weight: 800; color: white; }}
 .subtitle {{ font-size: 1.125rem; color: rgba(255,255,255,0.95); }}
 
@@ -65,6 +55,7 @@ h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2re
 
 [data-testid="stSidebar"] {{ background: {t['surface']}; border-right: 2px solid {t['border']}; }}
 [data-testid="stSidebar"] h3 {{ color: {t['text']} !important; font-weight: 700 !important; }}
+[data-testid="stSidebar"] label {{ color: {t['text']} !important; }}
 
 .stDataFrame {{ border: 2px solid {t['border']}; border-radius: 16px; overflow: hidden; }}
 
@@ -72,7 +63,6 @@ h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2re
 </style>
 """, unsafe_allow_html=True)
 
-# Header
 st.markdown("""
 <div class="main-header">
     <div class="header-content">
@@ -89,48 +79,53 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
     
-    # Theme Toggle
+    # THEME TOGGLE - Button Style
     st.markdown("**🎨 Theme**")
-    theme_choice = st.radio("", ["🌞 Light Mode", "🌙 Dark Mode"], 
-                            index=0 if st.session_state.theme == 'light' else 1,
-                            key="theme_radio")
+    col1, col2 = st.columns(2)
     
-    if "Light" in theme_choice and st.session_state.theme != 'light':
-        st.session_state.theme = 'light'
-        st.rerun()
-    elif "Dark" in theme_choice and st.session_state.theme != 'dark':
-        st.session_state.theme = 'dark'
-        st.rerun()
+    with col1:
+        if st.button("🌞 Light", key="light_theme", use_container_width=True,
+                    type="primary" if st.session_state.theme == 'light' else "secondary"):
+            st.session_state.theme = 'light'
+            st.rerun()
+    
+    with col2:
+        if st.button("🌙 Dark", key="dark_theme", use_container_width=True,
+                    type="primary" if st.session_state.theme == 'dark' else "secondary"):
+            st.session_state.theme = 'dark'
+            st.rerun()
+    
+    # Current theme indicator
+    current = "🌞 Light Mode" if st.session_state.theme == 'light' else "🌙 Dark Mode"
+    st.caption(f"Active: **{current}**")
     
     st.markdown("---")
     
-    # NEW FEATURE: Time Range Selector
+    # Time Range
     st.markdown("### 📅 Time Range")
-    time_range = st.selectbox("Select Period", 
-                              ["Last 7 Days", "Last 30 Days", "Last 90 Days", "All Time"])
+    time_range = st.selectbox("Period", ["Last 7 Days", "Last 30 Days", "Last 90 Days", "All Time"])
     
     st.markdown("---")
     st.markdown("### 🔍 Filters")
     
-    data_source = st.radio("Data Source", ["CSV", "MySQL"], horizontal=True)
-    filter_status = st.selectbox("Student Status", ["All", "Active Only", "At Risk Only"])
-    min_score = st.slider("Min Engagement Score", 0.0, 10.0, 0.0)
-    search_id = st.text_input("Search Student", placeholder="e.g., S007")
+    data_source = st.radio("Data", ["CSV", "MySQL"], horizontal=True)
+    filter_status = st.selectbox("Status", ["All", "Active Only", "At Risk Only"])
+    min_score = st.slider("Min Score", 0.0, 10.0, 0.0)
+    search_id = st.text_input("Search", placeholder="S007")
     
     st.markdown("---")
     
-    # NEW FEATURE: Alert Threshold
-    st.markdown("### 🔔 Alert Settings")
-    alert_threshold = st.slider("At-Risk Threshold", 0.0, 10.0, 5.0, 0.5,
-                                help="Students below this score will be flagged")
+    # Alert Threshold
+    st.markdown("### 🔔 Alerts")
+    alert_threshold = st.slider("At-Risk Threshold", 0.0, 10.0, 5.0, 0.5)
     
     st.markdown("---")
     st.markdown("### 📊 Display")
     show_charts = st.checkbox("Show Charts", value=True)
-    chart_height = st.slider("Chart Height", 300, 600, 400, 50)
+    chart_height = st.slider("Height", 300, 600, 400, 50)
     
     st.markdown("---")
-    st.info(f"📅 {datetime.now().strftime('%B %d, %Y at %I:%M %p')}")
+    st.info(f"📅 {datetime.now().strftime('%b %d, %Y at %I:%M %p')}")
 
 @st.cache_resource
 def load_model():
@@ -161,7 +156,7 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    # NEW FEATURE: Add custom at-risk based on threshold
+    # Custom risk based on threshold
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
@@ -185,26 +180,27 @@ if df is not None and model is not None:
     with col5:
         st.metric("Avg Time (hrs)", f"{df['time_spent'].mean():.1f}", "+2.3")
     
-    # NEW FEATURE: Quick Stats Cards
+    # Quick Insights
     st.markdown("## 📈 Quick Insights")
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.info(f"**🎯 Top Performer:** {df.loc[df['engagement_score'].idxmax(), 'student_id']} "
-                f"({df['engagement_score'].max():.2f})")
+        top_student = df.loc[df['engagement_score'].idxmax()]
+        st.info(f"**🎯 Top Performer**\n\n{top_student['student_id']} - {top_student['engagement_score']:.2f}")
     
     with col2:
-        st.warning(f"**⚠️ Needs Attention:** {df.loc[df['engagement_score'].idxmin(), 'student_id']} "
-                   f"({df['engagement_score'].min():.2f})")
+        bottom_student = df.loc[df['engagement_score'].idxmin()]
+        st.warning(f"**⚠️ Needs Attention**\n\n{bottom_student['student_id']} - {bottom_student['engagement_score']:.2f}")
     
     with col3:
         active_pct = ((df['anomaly_flag'] == 'Active').sum() / len(df) * 100)
-        st.success(f"**✅ Active Rate:** {active_pct:.1f}% ({(df['anomaly_flag'] == 'Active').sum()} students)")
+        active_count = (df['anomaly_flag'] == 'Active').sum()
+        st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count} students)")
     
     if show_charts:
         st.markdown("## 📈 Visual Analytics")
         
-        tab1, tab2, tab3, tab4 = st.tabs(["📊 Distribution", "🔍 Anomaly", "🏆 Leaderboard", "📉 Trends"])
+        tab1, tab2 = st.tabs(["📊 Distribution", "🔍 Anomaly Detection"])
         
         with tab1:
             col1, col2 = st.columns(2)
@@ -217,49 +213,17 @@ if df is not None and model is not None:
             
             with col2:
                 counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='Status', hole=0.4)
+                fig2 = px.pie(values=counts.values, names=counts.index, title='Student Status', hole=0.4)
                 fig2.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
                 fig2.update_traces(marker=dict(colors=['#34a853', '#ea4335']))
                 st.plotly_chart(fig2, use_container_width=True)
         
         with tab2:
-            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag', 
+            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag',
                             size='login_count', hover_data=['student_id'], title='Time vs Engagement',
                             color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
             fig3.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
             st.plotly_chart(fig3, use_container_width=True)
-        
-        with tab3:
-            top_10 = df.nlargest(10, 'engagement_score')
-            fig4 = px.bar(top_10, x='student_id', y='engagement_score', color='anomaly_flag',
-                        title='Top 10 Students', color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
-            fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
-            st.plotly_chart(fig4, use_container_width=True)
-        
-        with tab4:
-            # NEW FEATURE: Engagement Trend (simulated)
-            trend_data = pd.DataFrame({
-                'Date': pd.date_range(start='2025-10-01', periods=30, freq='D'),
-                'Avg_Engagement': np.random.uniform(6, 8, 30)
-            })
-            fig5 = px.line(trend_data, x='Date', y='Avg_Engagement', title='30-Day Engagement Trend')
-            fig5.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height)
-            fig5.update_traces(line_color='#1a73e8', line_width=3)
-            st.plotly_chart(fig5, use_container_width=True)
-    
-    # NEW FEATURE: Comparison Table
-    st.markdown("## 📊 Performance Comparison")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### 🏆 Top 5 Students")
-        top5 = df.nlargest(5, 'engagement_score')[['student_id', 'engagement_score', 'anomaly_flag']]
-        st.dataframe(top5, use_container_width=True, hide_index=True)
-    
-    with col2:
-        st.markdown("### ⚠️ Bottom 5 Students")
-        bottom5 = df.nsmallest(5, 'engagement_score')[['student_id', 'engagement_score', 'anomaly_flag']]
-        st.dataframe(bottom5, use_container_width=True, hide_index=True)
     
     st.markdown("## 📋 Student Data Explorer")
     
@@ -277,29 +241,28 @@ if df is not None and model is not None:
     
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    # NEW FEATURE: Download options
-    col1, col2, col3 = st.columns([2, 1, 1])
-    with col1:
-        st.info(f"📊 Showing {len(filtered)} of {len(df)} students")
-    with col2:
-        csv = filtered.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 CSV", csv, f'data_{datetime.now().strftime("%Y%m%d")}.csv', 'text/csv', use_container_width=True)
-    with col3:
-        json = filtered.to_json(orient='records')
-        st.download_button("📥 JSON", json, f'data_{datetime.now().strftime("%Y%m%d")}.json', 'application/json', use_container_width=True)
+    st.info(f"📊 Showing {len(filtered)} of {len(df)} students")
     
     st.dataframe(filtered, use_container_width=True, height=400)
+    
+    csv = filtered.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        f"📥 Download {len(filtered)} Records",
+        csv,
+        f'engagesense_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
+        'text/csv',
+        use_container_width=True
+    )
 
 else:
-    st.error("❌ Failed to load data or model")
+    st.error("❌ Failed to load data")
 
-# Footer
 st.markdown(f"""
-<div style="margin-top: 4rem; padding: 3rem; text-align: center; background: {t['surface']}; 
+<div style="margin-top: 4rem; padding: 3rem; text-align: center; background: {t['surface']};
      border-radius: 24px; border: 2px solid {t['border']};">
-    <h2 style="color: #1a73e8; margin: 0 0 1rem 0; font-size: 1.75rem; border: none; padding: 0;">📊 EngageSense Analytics</h2>
+    <h2 style="color: #1a73e8; margin: 0 0 1rem 0; font-size: 1.75rem; border: none; padding: 0;">📊 EngageSense</h2>
     <p style="color: {t['text']}; font-size: 1.125rem;">By <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
-    <p style="color: {t['secondary']}; font-size: 1rem; margin-top: 1rem;">🤖 AI · 📊 ML · 🐍 Python · ⚡ Streamlit · 📈 Plotly</p>
-    <p style="color: {t['secondary']}; font-size: 0.875rem; margin-top: 0.5rem;">© 2025 EngageSense. All Rights Reserved.</p>
+    <p style="color: {t['secondary']}; font-size: 1rem; margin: 1rem 0;">🤖 AI · 📊 ML · 🐍 Python · ⚡ Streamlit</p>
+    <p style="color: {t['secondary']}; font-size: 0.875rem;">© 2025 All Rights Reserved</p>
 </div>
 """, unsafe_allow_html=True)
