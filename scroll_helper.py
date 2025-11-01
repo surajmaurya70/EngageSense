@@ -1,26 +1,13 @@
 import streamlit.components.v1 as components
 
-def scroll_to_element(element_id="data-explorer"):
-    """Fast smooth scroll with minimal delay"""
-    scroll_js = f"""
+def scroll_to_element():
+    """Ultra-fast instant scroll"""
+    components.html("""
     <script>
-    (function() {{
-        const scrollToTarget = () => {{
-            const allH2 = window.parent.document.querySelectorAll('h2');
-            for (let h2 of allH2) {{
-                if (h2.textContent.includes('Student Data Explorer')) {{
-                    h2.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
-                    return;
-                }}
-            }}
-        }};
-        
-        if (document.readyState === 'complete') {{
-            scrollToTarget();
-        }} else {{
-            window.addEventListener('load', scrollToTarget);
-        }}
-    }})();
+    window.parent.document.querySelectorAll('h2').forEach(h => {
+        if(h.textContent.includes('Student Data')) {
+            h.scrollIntoView({behavior:'instant',block:'start'});
+        }
+    });
     </script>
-    """
-    components.html(scroll_js, height=0)
+    """, height=0)
