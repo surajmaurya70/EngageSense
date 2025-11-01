@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 import plotly.express as px
 from datetime import datetime
-import time
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
@@ -42,11 +41,6 @@ st.markdown(f"""
 @keyframes pulse {{
     0%, 100% {{ transform: scale(1); }}
     50% {{ transform: scale(1.05); }}
-}}
-
-@keyframes highlightPulse {{
-    0%, 100% {{ box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }}
-    50% {{ box-shadow: 0 0 0 20px rgba(26, 115, 232, 0); }}
 }}
 
 .main-header {{
@@ -134,14 +128,6 @@ h2 {{
 .stDataFrame {{ 
     border: 2px solid {t['border']}; border-radius: 16px; overflow: hidden; 
     animation: fadeInUp 1s ease;
-}}
-
-.highlight-section {{
-    animation: highlightPulse 1.5s ease;
-    border: 3px solid #1a73e8 !important;
-    border-radius: 16px;
-    padding: 1rem;
-    background: rgba(26, 115, 232, 0.05);
 }}
 
 #MainMenu, footer, header {{ visibility: hidden; }}
@@ -237,44 +223,44 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click any metric below to filter Student Data Explorer")
+    st.caption("👆 Click any metric to filter Student Data Explorer below")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
     anomaly_count = (df['anomaly'] == -1).sum()
     custom_risk = df['custom_risk'].sum()
+    active_count = (df['anomaly_flag'] == 'Active').sum()
     
-    # Clickable metrics
+    # Clickable metrics using st.metric + buttons
     with col1:
-        if st.button("📚\n\n**Total Students**\n\n" + str(len(df)), key="m1", use_container_width=True):
+        st.metric("Total Students", len(df), "+5")
+        if st.button("📚 View All", key="m1", use_container_width=True):
             st.session_state.selected_filter = 'All'
             st.session_state.clicked_metric = 'Total Students'
-            st.rerun()
     
     with col2:
-        if st.button("⚠️\n\n**AI At Risk**\n\n" + str(anomaly_count), key="m2", use_container_width=True):
+        st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
+        if st.button("⚠️ Show At Risk", key="m2", use_container_width=True):
             st.session_state.selected_filter = 'At Risk'
             st.session_state.clicked_metric = 'At Risk Students'
-            st.rerun()
     
     with col3:
-        if st.button("🔴\n\n**Below Threshold**\n\n" + str(custom_risk), key="m3", use_container_width=True):
+        st.metric("Below Threshold", custom_risk, f"{(custom_risk/len(df)*100):.0f}%")
+        if st.button("🔴 Show Below", key="m3", use_container_width=True):
             st.session_state.selected_filter = 'Below Threshold'
             st.session_state.clicked_metric = 'Below Threshold'
-            st.rerun()
     
     with col4:
-        if st.button("✅\n\n**Active Students**\n\n" + str((df['anomaly_flag'] == 'Active').sum()), key="m4", use_container_width=True):
+        st.metric("Active Students", active_count, f"{(active_count/len(df)*100):.0f}%")
+        if st.button("✅ Show Active", key="m4", use_container_width=True):
             st.session_state.selected_filter = 'Active'
             st.session_state.clicked_metric = 'Active Students'
-            st.rerun()
     
     with col5:
-        avg_score = df['engagement_score'].mean()
-        if st.button(f"📊\n\n**Avg Score**\n\n{avg_score:.2f}", key="m5", use_container_width=True):
+        st.metric("Avg Engagement", f"{df['engagement_score'].mean():.2f}", "+0.3")
+        if st.button("📊 Above Avg", key="m5", use_container_width=True):
             st.session_state.selected_filter = 'Above Average'
             st.session_state.clicked_metric = 'Above Average'
-            st.rerun()
     
     # Quick Insights
     st.markdown("## 📈 Quick Insights")
@@ -355,7 +341,7 @@ if df is not None and model is not None:
     
     # Show filter notification
     if st.session_state.clicked_metric:
-        st.success(f"✨ Filtered by: **{st.session_state.clicked_metric}** (Click metrics above to change)")
+        st.success(f"✨ **Currently Filtered:** {st.session_state.clicked_metric}")
     
     filtered = df.copy()
     
@@ -377,7 +363,7 @@ if df is not None and model is not None:
     
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    st.info(f"📊 Showing {len(filtered)} of {len(df)} students")
+    st.info(f"📊 Showing **{len(filtered)}** of **{len(df)}** students")
     
     st.dataframe(filtered, use_container_width=True, height=400)
     
