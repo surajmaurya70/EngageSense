@@ -31,7 +31,7 @@ st.markdown("""
         max-width: 1400px;
     }
     
-    /* Google Analytics Header with Logo */
+    /* Enhanced Header with Logo & User Menu */
     .ga-header {
         background: #ffffff;
         padding: 1rem 2rem;
@@ -40,7 +40,7 @@ st.markdown("""
         box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        justify-content: space-between;
     }
     
     .logo-container {
@@ -50,21 +50,39 @@ st.markdown("""
     }
     
     .logo-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
-        border-radius: 8px;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 50%, #34a853 100%);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         font-weight: 700;
         color: white;
-        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+        box-shadow: 0 4px 8px rgba(26, 115, 232, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .logo-icon::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
     }
     
     .ga-title {
-        font-size: 1.375rem;
+        font-size: 1.5rem;
         font-weight: 500;
         color: #202124;
         margin: 0;
@@ -76,18 +94,73 @@ st.markdown("""
         margin-top: 0.125rem;
     }
     
-    /* Metric Cards - Google Material Style */
+    /* Right Side User Menu */
+    .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        padding: 0.5rem 1rem;
+        background: #ffffff;
+        border: 1px solid #dadce0;
+        border-radius: 20px;
+        color: #5f6368;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .action-btn:hover {
+        background: #f8f9fa;
+        border-color: #1a73e8;
+        color: #1a73e8;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #1a73e8, #34a853);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+    
+    /* Metric Cards */
     [data-testid="stMetric"] {
         background: #ffffff;
         border: 1px solid #dadce0;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.5rem;
         box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-        transition: box-shadow 0.2s ease;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    [data-testid="stMetric"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #1a73e8, #34a853);
     }
     
     [data-testid="stMetric"]:hover {
-        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px 0 rgba(60,64,67,0.3), 0 8px 16px 4px rgba(60,64,67,0.15);
     }
     
     [data-testid="stMetric"] label {
@@ -99,12 +172,12 @@ st.markdown("""
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
         color: #202124 !important;
-        font-size: 2rem !important;
+        font-size: 2.25rem !important;
         font-weight: 400 !important;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricDelta"] {
-        color: #1a73e8 !important;
+        color: #34a853 !important;
         font-size: 0.875rem !important;
     }
     
@@ -112,32 +185,28 @@ st.markdown("""
     h2 {
         color: #202124 !important;
         font-weight: 500 !important;
-        font-size: 1.375rem !important;
-        margin: 2rem 0 1rem 0 !important;
+        font-size: 1.5rem !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
     }
     
-    h3 {
-        color: #202124 !important;
-        font-weight: 500 !important;
-        font-size: 1.125rem !important;
-    }
-    
-    /* Tabs - Material Design */
+    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0;
         background: #ffffff;
         border-bottom: 1px solid #dadce0;
         padding: 0;
+        border-radius: 8px 8px 0 0;
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         color: #5f6368;
         border: none;
-        border-bottom: 2px solid transparent;
+        border-bottom: 3px solid transparent;
         padding: 1rem 1.5rem;
         font-weight: 500;
         font-size: 0.875rem;
+        transition: all 0.2s ease;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
@@ -160,14 +229,51 @@ st.markdown("""
     [data-testid="stSidebar"] h3 {
         color: #202124 !important;
         font-size: 1rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
         margin-top: 1.5rem !important;
     }
     
-    [data-testid="stSidebar"] label {
-        color: #5f6368 !important;
-        font-weight: 500 !important;
-        font-size: 0.875rem !important;
+    /* Quick Actions Card */
+    .quick-actions {
+        background: linear-gradient(135deg, #e8f0fe 0%, #f1f8f4 100%);
+        border: 1px solid #d2e3fc;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .action-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #202124;
+        margin-bottom: 1rem;
+    }
+    
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    
+    .action-item:hover {
+        border-color: #1a73e8;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.15);
+    }
+    
+    .action-icon {
+        font-size: 1.25rem;
+    }
+    
+    .action-text {
+        font-size: 0.875rem;
+        color: #5f6368;
     }
     
     /* Info Box */
@@ -181,8 +287,9 @@ st.markdown("""
     /* Data Table */
     .stDataFrame {
         border: 1px solid #dadce0;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
     }
     
     /* Download Button */
@@ -190,55 +297,35 @@ st.markdown("""
         background: #1a73e8 !important;
         color: white !important;
         border: none !important;
-        border-radius: 4px !important;
-        padding: 0.5rem 1.5rem !important;
+        border-radius: 24px !important;
+        padding: 0.625rem 2rem !important;
         font-weight: 500 !important;
         transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3) !important;
     }
     
     .stDownloadButton button:hover {
         background: #1765cc !important;
-        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
-    }
-    
-    /* Feature Cards */
-    .feature-card {
-        background: white;
-        border: 1px solid #dadce0;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
-    }
-    
-    .feature-title {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #202124;
-        margin-bottom: 0.5rem;
-    }
-    
-    .feature-text {
-        font-size: 0.875rem;
-        color: #5f6368;
-        line-height: 1.5;
+        box-shadow: 0 4px 8px rgba(26, 115, 232, 0.4) !important;
+        transform: translateY(-2px);
     }
     
     /* Footer */
     .ga-footer {
         margin-top: 4rem;
-        padding: 2rem;
+        padding: 2.5rem;
         text-align: center;
-        background: #ffffff;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
         border: 1px solid #dadce0;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
     }
     
     .footer-title {
-        font-size: 1.125rem;
-        font-weight: 500;
+        font-size: 1.25rem;
+        font-weight: 600;
         color: #202124;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
     }
     
     .footer-text {
@@ -256,21 +343,49 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Header with Logo
+# Enhanced Header with User Menu
 st.markdown("""
     <div class="ga-header">
         <div class="logo-container">
-            <div class="logo-icon">📊</div>
+            <div class="logo-icon">ES</div>
             <div>
                 <div class="ga-title">EngageSense Analytics</div>
-                <div class="ga-subtitle">AI-Powered Student Engagement Monitoring</div>
+                <div class="ga-subtitle">AI-Powered Student Engagement Platform</div>
             </div>
+        </div>
+        <div class="user-menu">
+            <div class="action-btn">📊 Reports</div>
+            <div class="action-btn">⚙️ Settings</div>
+            <div class="action-btn">🔔 Alerts</div>
+            <div class="user-avatar">SM</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
+# Sidebar with Quick Actions
 with st.sidebar:
+    st.markdown("""
+        <div class="quick-actions">
+            <div class="action-title">⚡ Quick Actions</div>
+            <div class="action-item">
+                <span class="action-icon">📤</span>
+                <span class="action-text">Export All Data</span>
+            </div>
+            <div class="action-item">
+                <span class="action-icon">🔍</span>
+                <span class="action-text">Generate Report</span>
+            </div>
+            <div class="action-item">
+                <span class="action-icon">📧</span>
+                <span class="action-text">Email Summary</span>
+            </div>
+            <div class="action-item">
+                <span class="action-icon">🎯</span>
+                <span class="action-text">Set Alerts</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     st.markdown("### Filters")
     
     data_source = st.radio("Data Source", ["CSV File", "MySQL Database"])
@@ -288,21 +403,7 @@ with st.sidebar:
     chart_height = st.slider("Chart Height", 300, 600, 400)
     
     st.markdown("---")
-    
-    # Feature Info
-    st.markdown("""
-        <div class="feature-card">
-            <div class="feature-title">✨ Key Features</div>
-            <div class="feature-text">
-                • AI-powered anomaly detection<br>
-                • Real-time engagement tracking<br>
-                • Predictive analytics<br>
-                • Custom reports & exports
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.info(f"Last updated: {datetime.now().strftime('%B %d, %Y')}")
+    st.info(f"📅 Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}")
 
 @st.cache_resource
 def load_model():
@@ -349,7 +450,7 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    st.markdown("## Overview")
+    st.markdown("## 📊 Overview Dashboard")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -367,9 +468,9 @@ if df is not None and model is not None:
         st.metric("Avg Time (hours)", f"{df['time_spent'].mean():.1f}", "+2.3")
     
     if show_charts:
-        st.markdown("## Analytics")
+        st.markdown("## 📈 Analytics & Insights")
         
-        tab1, tab2, tab3 = st.tabs(["Distribution", "Anomaly Detection", "Top Performers"])
+        tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔍 Anomaly Detection", "🏆 Top Performers"])
         
         with tab1:
             col1, col2 = st.columns(2)
@@ -428,7 +529,7 @@ if df is not None and model is not None:
             )
             st.plotly_chart(fig4, use_container_width=True)
     
-    st.markdown("## Student Data")
+    st.markdown("## 📋 Student Data Explorer")
     
     filtered = df.copy()
     
@@ -444,7 +545,7 @@ if df is not None and model is not None:
     
     filtered = filtered.sort_values('engagement_score', ascending=False)
     
-    st.info(f"Showing {len(filtered)} of {len(df)} students")
+    st.info(f"📊 Showing {len(filtered)} of {len(df)} students")
     
     st.dataframe(filtered, use_container_width=True, height=400)
     
@@ -452,7 +553,7 @@ if df is not None and model is not None:
     with col2:
         csv = filtered.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label=f"Download {len(filtered)} records",
+            label=f"📥 Download {len(filtered)} Records",
             data=csv,
             file_name=f'engagesense_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
             mime='text/csv',
@@ -460,12 +561,12 @@ if df is not None and model is not None:
         )
 
 else:
-    st.error("Failed to load data or model")
+    st.error("❌ Failed to load data or model")
 
 st.markdown("""
     <div class="ga-footer">
-        <div class="footer-title">📊 EngageSense Analytics</div>
-        <div class="footer-text">Developed by <span class="creator-highlight">Suraj Maurya</span></div>
+        <div class="footer-title">📊 EngageSense Analytics Platform</div>
+        <div class="footer-text">Developed with ❤️ by <span class="creator-highlight">Suraj Maurya</span></div>
         <div class="footer-text">Machine Learning · Python · Streamlit · Plotly · Scikit-learn</div>
         <div class="footer-text">© 2025 EngageSense. All Rights Reserved.</div>
     </div>
