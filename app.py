@@ -2,14 +2,18 @@ import streamlit as st
 import pandas as pd
 import joblib
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
+import time
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
 # Session state
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
+if 'selected_filter' not in st.session_state:
+    st.session_state.selected_filter = 'All'
+if 'clicked_metric' not in st.session_state:
+    st.session_state.clicked_metric = None
 
 # Theme colors
 def get_theme():
@@ -38,6 +42,11 @@ st.markdown(f"""
 @keyframes pulse {{
     0%, 100% {{ transform: scale(1); }}
     50% {{ transform: scale(1.05); }}
+}}
+
+@keyframes highlightPulse {{
+    0%, 100% {{ box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }}
+    50% {{ box-shadow: 0 0 0 20px rgba(26, 115, 232, 0); }}
 }}
 
 .main-header {{
@@ -127,6 +136,14 @@ h2 {{
     animation: fadeInUp 1s ease;
 }}
 
+.highlight-section {{
+    animation: highlightPulse 1.5s ease;
+    border: 3px solid #1a73e8 !important;
+    border-radius: 16px;
+    padding: 1rem;
+    background: rgba(26, 115, 232, 0.05);
+}}
+
 #MainMenu, footer, header {{ visibility: hidden; }}
 </style>
 """, unsafe_allow_html=True)
@@ -170,10 +187,9 @@ with st.sidebar:
     time_range = st.selectbox("Period", ["Last 7 Days", "Last 30 Days", "Last 90 Days", "All Time"])
     
     st.markdown("---")
-    st.markdown("### 🔍 Filters")
+    st.markdown("### 🔍 Manual Filters")
     
     data_source = st.radio("Data", ["CSV", "MySQL"], horizontal=True)
-    filter_status = st.selectbox("Status", ["All", "Active Only", "At Risk Only"])
     min_score = st.slider("Min Score", 0.0, 10.0, 0.0)
     search_id = st.text_input("Search", placeholder="S007")
     
@@ -221,26 +237,44 @@ if df is not None and model is not None:
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
     st.markdown("## 📊 Dashboard Overview")
+    st.caption("👆 Click any metric below to filter Student Data Explorer")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
     anomaly_count = (df['anomaly'] == -1).sum()
     custom_risk = df['custom_risk'].sum()
     
+    # Clickable metrics
     with col1:
-        st.metric("Total Students", len(df), "+5")
+        if st.button("📚\n\n**Total Students**\n\n" + str(len(df)), key="m1", use_container_width=True):
+            st.session_state.selected_filter = 'All'
+            st.session_state.clicked_metric = 'Total Students'
+            st.rerun()
     
     with col2:
-        st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
+        if st.button("⚠️\n\n**AI At Risk**\n\n" + str(anomaly_count), key="m2", use_container_width=True):
+            st.session_state.selected_filter = 'At Risk'
+            st.session_state.clicked_metric = 'At Risk Students'
+            st.rerun()
     
     with col3:
-        st.metric("Below Threshold", custom_risk, f"{(custom_risk/len(df)*100):.0f}%")
+        if st.button("🔴\n\n**Below Threshold**\n\n" + str(custom_risk), key="m3", use_container_width=True):
+            st.session_state.selected_filter = 'Below Threshold'
+            st.session_state.clicked_metric = 'Below Threshold'
+            st.rerun()
     
     with col4:
-        st.metric("Avg Engagement", f"{df['engagement_score'].mean():.2f}", "+0.3")
+        if st.button("✅\n\n**Active Students**\n\n" + str((df['anomaly_flag'] == 'Active').sum()), key="m4", use_container_width=True):
+            st.session_state.selected_filter = 'Active'
+            st.session_state.clicked_metric = 'Active Students'
+            st.rerun()
     
     with col5:
-        st.metric("Avg Time (hrs)", f"{df['time_spent'].mean():.1f}", "+2.3")
+        avg_score = df['engagement_score'].mean()
+        if st.button(f"📊\n\n**Avg Score**\n\n{avg_score:.2f}", key="m5", use_container_width=True):
+            st.session_state.selected_filter = 'Above Average'
+            st.session_state.clicked_metric = 'Above Average'
+            st.rerun()
     
     # Quick Insights
     st.markdown("## 📈 Quick Insights")
@@ -316,16 +350,26 @@ if df is not None and model is not None:
                               margin=dict(l=40, r=40, t=60, b=40))
             st.plotly_chart(fig5, use_container_width=True, key="chart5")
     
-    # Data Table
+    # Data Table - Connected to Dashboard
     st.markdown("## 📋 Student Data Explorer")
+    
+    # Show filter notification
+    if st.session_state.clicked_metric:
+        st.success(f"✨ Filtered by: **{st.session_state.clicked_metric}** (Click metrics above to change)")
     
     filtered = df.copy()
     
-    if filter_status == "Active Only":
-        filtered = filtered[filtered['anomaly_flag'] == 'Active']
-    elif filter_status == "At Risk Only":
+    # Apply filter based on clicked metric
+    if st.session_state.selected_filter == 'At Risk':
         filtered = filtered[filtered['anomaly_flag'] == 'At Risk']
+    elif st.session_state.selected_filter == 'Active':
+        filtered = filtered[filtered['anomaly_flag'] == 'Active']
+    elif st.session_state.selected_filter == 'Below Threshold':
+        filtered = filtered[filtered['custom_risk'] == True]
+    elif st.session_state.selected_filter == 'Above Average':
+        filtered = filtered[filtered['engagement_score'] >= df['engagement_score'].mean()]
     
+    # Apply manual filters
     filtered = filtered[filtered['engagement_score'] >= min_score]
     
     if search_id:
