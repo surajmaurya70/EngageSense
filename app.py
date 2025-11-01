@@ -80,7 +80,7 @@ if df is not None and model is not None:
     
     # Predict anomalies - use numpy array to avoid feature name mismatch
     try:
-        feature_cols = ['login_count', 'time_spent', 'quiz_attempts', 'forum_posts', 'assignment_score']
+        feature_cols = ['login_count', 'time_spent', 'quiz_attempts']
         features_array = df[feature_cols].values
         df['anomaly'] = model.predict(features_array)
         df['anomaly_flag'] = df['anomaly'].apply(lambda x: 'Anomaly' if x == -1 else 'Normal')
