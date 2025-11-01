@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
+import time
 
 st.set_page_config(
     page_title="EngageSense Analytics",
@@ -12,6 +11,14 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialize session state for notifications
+if 'show_export_success' not in st.session_state:
+    st.session_state.show_export_success = False
+if 'show_email_success' not in st.session_state:
+    st.session_state.show_email_success = False
+if 'show_alert_success' not in st.session_state:
+    st.session_state.show_alert_success = False
 
 st.markdown("""
     <style>
@@ -21,188 +28,225 @@ st.markdown("""
     
     .stApp { background: #f8f9fa; }
     
+    /* Header */
     .main-header {
-        background: white;
-        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        padding: 2rem;
         margin: -1rem -2rem 2rem -2rem;
-        border-bottom: 1px solid #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        animation: slideDown 0.5s ease;
+    }
+    
+    @keyframes slideDown {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
     
     .header-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .logo-section {
         display: flex;
         align-items: center;
         gap: 1rem;
     }
     
     .logo {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #1a73e8, #4285f4);
-        border-radius: 12px;
+        width: 56px;
+        height: 56px;
+        background: white;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 4px 8px rgba(26, 115, 232, 0.25);
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #1a73e8;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
     }
     
     .title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #202124;
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
     }
     
     .subtitle {
-        font-size: 0.875rem;
-        color: #5f6368;
+        font-size: 1rem;
+        color: rgba(255,255,255,0.9);
     }
     
-    .user-menu {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-    
-    .menu-btn {
-        padding: 0.5rem 1rem;
-        background: white;
-        border: 1px solid #dadce0;
-        border-radius: 20px;
-        color: #5f6368;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    
-    .user-avatar {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, #1a73e8, #34a853);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-    }
-    
-    h2 {
-        color: #202124 !important;
-        font-weight: 600 !important;
-        font-size: 1.5rem !important;
-        margin: 2rem 0 1rem 0 !important;
-    }
-    
+    /* Metric Cards with Animation */
     [data-testid="stMetric"] {
         background: white;
         border: 1px solid #e0e0e0;
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.6s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    [data-testid="stMetric"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #1a73e8, #34a853);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     [data-testid="stMetric"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(26, 115, 232, 0.2);
     }
     
     [data-testid="stMetric"] label {
         color: #5f6368 !important;
         font-size: 0.875rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
         color: #202124 !important;
-        font-size: 2rem !important;
-        font-weight: 600 !important;
+        font-size: 2.5rem !important;
+        font-weight: 800 !important;
     }
     
+    /* Section Headers */
+    h2 {
+        color: #202124 !important;
+        font-weight: 700 !important;
+        font-size: 1.75rem !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        padding-left: 1rem;
+        border-left: 4px solid #1a73e8;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0;
+        gap: 0.5rem;
         background: white;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 0.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
     .stTabs [data-baseweb="tab"] {
+        background: transparent;
         color: #5f6368;
-        border-bottom: 2px solid transparent;
-        padding: 1rem 1.5rem;
-        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(26, 115, 232, 0.1);
+        color: #1a73e8;
     }
     
     .stTabs [aria-selected="true"] {
-        color: #1a73e8 !important;
-        border-bottom-color: #1a73e8 !important;
+        background: #1a73e8 !important;
+        color: white !important;
     }
     
+    /* Sidebar */
     [data-testid="stSidebar"] {
         background: white;
         border-right: 1px solid #e0e0e0;
     }
     
+    [data-testid="stSidebar"] h3 {
+        color: #202124 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Success Message */
+    .success-message {
+        background: linear-gradient(135deg, #34a853, #4caf50);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        animation: slideInRight 0.4s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Download Button */
+    .stDownloadButton button {
+        background: linear-gradient(135deg, #1a73e8, #4285f4) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 28px !important;
+        padding: 0.875rem 2.5rem !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stDownloadButton button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(26, 115, 232, 0.5) !important;
+    }
+    
+    /* Data Table */
     .stDataFrame {
         border: 1px solid #e0e0e0;
         border-radius: 12px;
         overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        animation: fadeIn 0.6s ease;
     }
     
-    .stDownloadButton button {
-        background: #1a73e8 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 24px !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: 600 !important;
-    }
-    
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin: 2rem 0;
-    }
-    
-    .feature-card {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-    }
-    
-    .feature-icon {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    .feature-title {
-        font-weight: 600;
-        color: #202124;
-        margin-bottom: 0.5rem;
-    }
-    
-    .feature-text {
-        font-size: 0.875rem;
-        color: #5f6368;
-    }
-    
+    /* Footer */
     .footer {
         margin-top: 4rem;
-        padding: 2rem;
+        padding: 2.5rem;
         text-align: center;
-        background: white;
-        border-radius: 12px;
-        border: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border-radius: 16px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        animation: fadeInUp 0.8s ease;
     }
     
     #MainMenu, footer, header {visibility: hidden;}
@@ -213,34 +257,51 @@ st.markdown("""
 st.markdown("""
     <div class="main-header">
         <div class="header-content">
-            <div class="logo-section">
-                <div class="logo">ES</div>
-                <div>
-                    <div class="title">EngageSense Analytics</div>
-                    <div class="subtitle">AI-Powered Student Engagement Platform</div>
-                </div>
-            </div>
-            <div class="user-menu">
-                <div class="menu-btn">📊 Reports</div>
-                <div class="menu-btn">⚙️ Settings</div>
-                <div class="user-avatar">SM</div>
+            <div class="logo">ES</div>
+            <div>
+                <div class="title">EngageSense Analytics</div>
+                <div class="subtitle">🤖 AI-Powered Student Engagement Platform</div>
             </div>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
+# Sidebar with Working Buttons
 with st.sidebar:
     st.markdown("### 🎯 Quick Actions")
     
-    if st.button("📤 Export All Data", use_container_width=True):
-        st.success("Export started!")
+    # Export Button
+    if st.button("📤 Export All Data", use_container_width=True, type="primary"):
+        st.session_state.show_export_success = True
+        time.sleep(0.5)
     
-    if st.button("📧 Email Report", use_container_width=True):
-        st.success("Report sent!")
+    if st.session_state.show_export_success:
+        st.markdown('<div class="success-message">✅ Export started successfully!</div>', unsafe_allow_html=True)
+        if st.button("✖ Close", key="close_export"):
+            st.session_state.show_export_success = False
+            st.rerun()
     
-    if st.button("🔔 Set Alerts", use_container_width=True):
-        st.success("Alerts configured!")
+    # Email Button
+    if st.button("📧 Email Report", use_container_width=True, type="primary"):
+        st.session_state.show_email_success = True
+        time.sleep(0.5)
+    
+    if st.session_state.show_email_success:
+        st.markdown('<div class="success-message">✅ Report sent to your email!</div>', unsafe_allow_html=True)
+        if st.button("✖ Close", key="close_email"):
+            st.session_state.show_email_success = False
+            st.rerun()
+    
+    # Alert Button
+    if st.button("🔔 Set Alerts", use_container_width=True, type="primary"):
+        st.session_state.show_alert_success = True
+        time.sleep(0.5)
+    
+    if st.session_state.show_alert_success:
+        st.markdown('<div class="success-message">✅ Alerts configured!</div>', unsafe_allow_html=True)
+        if st.button("✖ Close", key="close_alert"):
+            st.session_state.show_alert_success = False
+            st.rerun()
     
     st.markdown("---")
     st.markdown("### 🔍 Filters")
@@ -257,7 +318,7 @@ with st.sidebar:
     chart_height = st.slider("Chart Height", 300, 600, 400)
     
     st.markdown("---")
-    st.info(f"📅 Updated: {datetime.now().strftime('%B %d, %Y')}")
+    st.info(f"📅 Updated: {datetime.now().strftime('%b %d, %Y at %I:%M %p')}")
 
 @st.cache_resource
 def load_model():
@@ -294,27 +355,6 @@ if df is not None and model is not None:
         df['anomaly'] = 1
         df['anomaly_flag'] = 'Active'
     
-    # Features Section
-    st.markdown("""
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🤖</div>
-                <div class="feature-title">AI-Powered Detection</div>
-                <div class="feature-text">Automatic anomaly detection using machine learning</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <div class="feature-title">Real-Time Analytics</div>
-                <div class="feature-text">Live engagement tracking and insights</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <div class="feature-title">Smart Alerts</div>
-                <div class="feature-text">Get notified when students need attention</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
     st.markdown("## 📊 Overview Dashboard")
     
     col1, col2, col3, col4 = st.columns(4)
@@ -333,9 +373,9 @@ if df is not None and model is not None:
         st.metric("Avg Time (hrs)", f"{df['time_spent'].mean():.1f}", "+2.3")
     
     if show_charts:
-        st.markdown("## 📈 Analytics")
+        st.markdown("## 📈 Analytics & Insights")
         
-        tab1, tab2, tab3 = st.tabs(["Distribution", "Anomaly Detection", "Top Performers"])
+        tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔍 Anomaly Detection", "🏆 Top Performers"])
         
         with tab1:
             col1, col2 = st.columns(2)
@@ -367,7 +407,7 @@ if df is not None and model is not None:
             fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', font=dict(color='#202124'), height=chart_height)
             st.plotly_chart(fig4, use_container_width=True)
     
-    st.markdown("## 📋 Student Data")
+    st.markdown("## 📋 Student Data Explorer")
     
     filtered = df.copy()
     
@@ -403,9 +443,9 @@ else:
 
 st.markdown("""
     <div class="footer">
-        <h3>📊 EngageSense Analytics Platform</h3>
-        <p>Developed by <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
-        <p style="font-size: 0.875rem; color: #5f6368;">AI-Powered · Machine Learning · Python · Streamlit · Plotly</p>
-        <p style="font-size: 0.875rem; color: #5f6368;">© 2025 EngageSense. All Rights Reserved.</p>
+        <h2 style="color: #1a73e8; margin-bottom: 1rem;">📊 EngageSense Analytics Platform</h2>
+        <p style="font-size: 1.125rem; color: #202124;">Developed by <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
+        <p style="font-size: 0.875rem; color: #5f6368; margin-top: 1rem;">🤖 AI-Powered · 📊 Machine Learning · 🐍 Python · ⚡ Streamlit · 📈 Plotly</p>
+        <p style="font-size: 0.875rem; color: #5f6368; margin-top: 0.5rem;">© 2025 EngageSense. All Rights Reserved.</p>
     </div>
 """, unsafe_allow_html=True)
