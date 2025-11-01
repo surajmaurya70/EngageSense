@@ -1,0 +1,820 @@
+open index.html
+
+start index.html
+
+cd ~/Downloads/EngageSense/EngageSense
+
+cat > index.html
+
+open index.html
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EngageSense — AI-Powered Student Engagement Analytics</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================
+       VARIABLES
+       ========================= */
+    :root{
+      --bg: #070607;
+      --panel: #0f1113;
+      --muted: #9fb0c5;
+      --text: #e7f0fb;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.06);
+      --accent1: #ff6a3d; /* neon orange */
+      --accent2: #9f5cff; /* purple */
+      --accent-grad: linear-gradient(90deg,var(--accent1),var(--accent2));
+      --accent-green: #2fe39a;
+      --radius: 14px;
+      --shadow: 0 12px 40px rgba(2,6,12,0.7);
+      --maxw: 1200px;
+    }
+    @media (prefers-reduced-motion: reduce){
+      * { animation: none !important; transition: none !important; }
+    }
+
+    /* =========================
+       BASE
+       ========================= */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;
+      background: radial-gradient(1200px 400px at 10% 5%, rgba(159,92,255,0.06), transparent),
+                  radial-gradient(800px 300px at 90% 80%, rgba(255,106,61,0.04), transparent),
+                  var(--bg);
+      color:var(--text); -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale; padding:28px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto}
+
+    a{color:inherit;text-decoration:none}
+    button{font-family:inherit}
+
+    /* =========================
+       HEADER
+       ========================= */
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:52px;height:52px;border-radius:12px;
+      background:var(--accent-grad);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;
+      font-size:18px;box-shadow: 0 8px 28px rgba(159,92,255,0.18);
+    }
+    .brand h1{margin:0;font-size:18px}
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+    nav{display:flex;gap:10px;align-items:center}
+    .nav-btn{
+      background:transparent;border:1px solid transparent;padding:8px 12px;border-radius:999px;color:var(--muted);
+      cursor:pointer;font-weight:600;
+    }
+    .nav-cta{
+      background:var(--glass); border:1px solid var(--glass-border);
+      padding:8px 12px;border-radius:999px;font-weight:700;color:var(--accent-green);
+      cursor:pointer;
+      backdrop-filter: blur(6px);
+    }
+
+    /* =========================
+       HERO
+       ========================= */
+    .hero{
+      display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;padding:30px;border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      border:1px solid var(--glass-border);box-shadow:var(--shadow);position:relative;overflow:hidden;
+    }
+    .hero-left{padding-right:6px}
+    .kicker{display:inline-block;background:linear-gradient(90deg,var(--accent-green),#69f0b6);padding:6px 10px;border-radius:999px;color:#021015;font-weight:800;font-size:13px}
+    h2{font-size:44px;margin:12px 0 10px;line-height:1.02;font-weight:800;letter-spacing:-0.6px}
+    .sub{color:var(--muted);max-width:68%;margin-bottom:14px}
+
+    .cta-row{display:flex;gap:12px;align-items:center}
+    .cta-primary{
+      background:var(--accent-grad);border:none;padding:12px 18px;border-radius:999px;color:white;font-weight:800;cursor:pointer;
+      box-shadow: 0 12px 36px rgba(159,92,255,0.12);transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .cta-primary:hover{transform:translateY(-4px);box-shadow: 0 20px 52px rgba(159,92,255,0.18);}
+    .cta-secondary{background:transparent;border:1px solid var(--glass-border);padding:10px 14px;border-radius:999px;color:var(--muted);cursor:pointer}
+
+    /* animated soft background (lightweight) */
+    .hero-bg {
+      position:absolute;right:-10%;top:-20%;width:80%;height:120%;filter: blur(80px);opacity:0.9;pointer-events:none;
+      background: radial-gradient(40% 40% at 20% 30%, rgba(255,106,61,0.09), transparent 20%),
+                  radial-gradient(30% 30% at 80% 70%, rgba(159,92,255,0.06), transparent 10%);
+      mix-blend-mode:screen;
+    }
+
+    /* Right preview (dashboard) */
+    .preview{
+      background: linear-gradient(180deg,#0c0e11,#081018);
+      border-radius:12px;padding:14px;border:1px solid var(--glass-border);
+    }
+    .preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .small-pill{padding:6px 10px;border-radius:8px;background:var(--glass);border:1px solid var(--glass-border);font-weight:700;color:var(--muted);font-size:13px}
+
+    .chart-placeholder{
+      height:220px;border-radius:8px;background:linear-gradient(180deg,#081119,#071018);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;
+      border:1px solid rgba(255,255,255,0.02)
+    }
+
+    /* stats cards */
+    .stats-row{display:flex;gap:12px;margin-top:14px}
+    .stat-card{flex:1;background:var(--glass);padding:12px;border-radius:12px;border:1px solid var(--glass-border);text-align:center;cursor:pointer;transition:transform .14s ease, box-shadow .14s;}
+    .stat-card:hover{transform:translateY(-6px);box-shadow:0 18px 48px rgba(2,6,12,0.6)}
+    .stat-card h3{margin:0;font-size:26px}
+    .stat-card p{margin:6px 0 0;color:var(--muted);font-weight:700;font-size:13px}
+
+    /* =========================
+       FEATURES / CARDS
+       ========================= */
+    .features{display:flex;gap:12px;margin-top:22px}
+    .feature{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:16px;border-radius:12px;border:1px solid var(--glass-border)}
+    .feature h4{margin:0 0 8px}
+    .feature p{margin:0;color:var(--muted);font-size:14px}
+
+    /* =========================
+       TABLE & CONTROLS
+       ========================= */
+    .section{margin-top:22px;padding:18px;border-radius:12px;background:linear-gradient(180deg,transparent, rgba(255,255,255,0.01));border:1px solid var(--glass-border)}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .controls input[type="text"], .controls select {
+      padding:10px 12px;border-radius:10px;background:var(--glass-2);border:1px solid var(--glass-border);color:var(--text);min-width:160px;
+    }
+    .controls button{padding:10px 12px;border-radius:10px;background:transparent;border:1px solid var(--glass-border);color:var(--muted);cursor:pointer}
+
+    table{width:100%;border-collapse:collapse;margin-top:12px;color:var(--text)}
+    th,td{padding:10px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left;font-size:13px}
+    th{color:var(--muted);font-weight:700}
+    tr.anom td{background: linear-gradient(90deg, rgba(255,106,61,0.03), transparent)}
+    tr:hover td{background:rgba(255,255,255,0.01)}
+    .remove-btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;color:#ff7b6e;cursor:pointer}
+
+    /* modal */
+    .modal{
+      position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(2,6,12,0.6);
+      z-index:9999;visibility:hidden;opacity:0;transition:opacity .18s ease, visibility .18s;
+    }
+    .modal.open{visibility:visible;opacity:1}
+    .modal-card{background:linear-gradient(180deg,#0f1316,#081018);padding:20px;border-radius:12px;border:1px solid var(--glass-border);width:760px;max-width:94%}
+
+    /* right settings panel */
+    .settings-toggle{position:fixed;right:22px;bottom:22px;background:var(--glass);border:1px solid var(--glass-border);padding:12px;border-radius:12px;cursor:pointer;backdrop-filter: blur(6px);z-index:999}
+    .settings-panel{position:fixed;right:22px;bottom:78px;width:320px;background:linear-gradient(180deg,#0b0d0f,#071018);border-radius:12px;padding:14px;border:1px solid var(--glass-border);box-shadow:0 18px 60px rgba(2,6,12,0.6);z-index:999;display:none}
+    .settings-panel.open{display:block}
+    .settings-panel h4{margin:0 0 10px}
+    .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px dashed rgba(255,255,255,0.02)}
+
+    /* testimonials */
+    .testimonials{display:flex;gap:12px;margin-top:18px}
+    .testimonial{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:14px;border-radius:10px;border:1px solid var(--glass-border);flex:1;color:var(--muted)}
+
+    /* footer */
+    footer{display:flex;justify-content:space-between;align-items:center;margin-top:22px;color:var(--muted);font-size:13px;gap:12px;flex-wrap:wrap}
+
+    /* responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr;padding:18px}
+      h2{font-size:28px}
+      .sub{max-width:100%}
+      .features{flex-direction:column}
+      .stats-row{flex-direction:column}
+      .testimonials{flex-direction:column}
+      .settings-panel{right:12px;left:12px;width:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- HEADER -->
+    <header>
+      <div class="brand" aria-hidden="false">
+        <div class="logo">ES</div>
+        <div>
+          <h1>EngageSense</h1>
+          <p>AI Student Engagement Analytics</p>
+        </div>
+      </div>
+
+      <nav>
+        <button class="nav-btn" id="docsBtn">Docs</button>
+        <button class="nav-btn" id="aboutBtn">About</button>
+        <button class="nav-cta" id="getDemoBtn">Get Demo</button>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Hero section">
+      <div class="hero-left">
+        <div class="kicker">Now connected • MySQL & CSV</div>
+        <h2>Discover engagement patterns that matter.</h2>
+        <p class="sub">AI-powered analytics that help educators detect learning gaps before they grow. Visualize login frequency, time spent, quiz attempts and forum participation — and get alerted when students start to disengage.</p>
+
+        <div class="cta-row">
+          <button class="cta-primary" id="tryDemo">Try Demo</button>
+          <button class="cta-secondary" id="viewDash">View Dashboard</button>
+        </div>
+
+        <!-- badges -->
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <div class="small-pill">AI-Powered</div>
+          <div class="small-pill">Privacy-First</div>
+          <div class="small-pill">Works with any LMS</div>
+        </div>
+
+        <!-- quick features -->
+        <div class="features" style="margin-top:18px">
+          <div class="feature">
+            <h4>AI-Powered</h4>
+            <p>IsolationForest & clustering to automatically flag unusual engagement patterns.</p>
+          </div>
+          <div class="feature">
+            <h4>Actionable Alerts</h4>
+            <p>See who needs support — sudden drop in activity or low assignment scores trigger flags.</p>
+          </div>
+          <div class="feature">
+            <h4>Privacy-first</h4>
+            <p>Minimal data requirements and options to anonymize student details before analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right preview / interactive dashboard -->
+      <aside class="preview" aria-label="Dashboard preview">
+        <div class="preview-head">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--accent-grad)"></div>
+            <div style="font-weight:800">Live Demo</div>
+          </div>
+          <div style="color:var(--muted);font-size:13px">Updated just now</div>
+        </div>
+
+        <div class="chart-placeholder" id="chartPlaceholder">
+          <!-- Replace with real chart (Plotly or Canvas) if needed -->
+          Engagement Distribution
+        </div>
+
+        <!-- stat cards: clickable to filter -->
+        <div class="stats-row">
+          <div class="stat-card" data-filter="all" id="cardTotal">
+            <h3 id="totalStudents">40</h3>
+            <p>Total Students</p>
+          </div>
+          <div class="stat-card" data-filter="at-risk" id="cardAtRisk">
+            <h3 id="atRiskCount">4</h3>
+            <p>At-Risk</p>
+          </div>
+        </div>
+
+        <!-- mini breakdown -->
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <div style="flex:1">
+            <div style="color:var(--muted);font-size:13px">Avg Engagement</div>
+            <div style="font-weight:800">3.53</div>
+          </div>
+          <div style="flex:1">
+            <div style="color:var(--muted);font-size:13px">Avg Time (hrs)</div>
+            <div style="font-weight:800">59.9</div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="hero-bg" aria-hidden="true"></div>
+    </section>
+
+    <!-- MAIN SECTION: Table + controls -->
+    <section class="section" id="dashboardSection" style="margin-top:18px">
+      <!-- Top row: description + CSV upload -->
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0">AI-Powered Student Engagement and Anomaly Detection</h3>
+          <div style="color:var(--muted);margin-top:6px;max-width:60%">
+            EngageSense analyzes LMS interaction logs (login frequency, time spent on content, quiz attempts, forum participation) to detect deviations and flag students requiring attention. Designed for educators to intervene early and improve student success.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <!-- CSV upload to replace data locally -->
+          <label style="display:inline-block">
+            <input type="file" id="csvUpload" accept=".csv" style="display:none" />
+            <button class="nav-btn" id="uploadBtn">Upload CSV</button>
+          </label>
+          <button class="nav-btn" id="exportBtn">Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls" style="margin-top:12px">
+        <input type="text" id="searchBox" placeholder="Search Student ID (e.g., S007)" />
+        <select id="statusFilter">
+          <option value="all">All Students</option>
+          <option value="normal">Normal</option>
+          <option value="anomaly">At-Risk</option>
+        </select>
+
+        <select id="sortSelect">
+          <option value="engagement_desc">Sort: Engagement ↓</option>
+          <option value="engagement_asc">Sort: Engagement ↑</option>
+          <option value="time_desc">Sort: Time Spent ↓</option>
+          <option value="time_asc">Sort: Time Spent ↑</option>
+        </select>
+
+        <button id="resetBtn">Reset</button>
+        <div style="margin-left:auto;color:var(--muted);font-weight:700" id="showingCount">Showing 40 of 40</div>
+      </div>
+
+      <!-- Table -->
+      <div style="overflow:auto;margin-top:12px">
+        <table id="studentsTable" aria-describedby="students">
+          <thead>
+            <tr>
+              <th>student_id</th>
+              <th>login_count</th>
+              <th>time_spent</th>
+              <th>quiz_attempts</th>
+              <th>forum_posts</th>
+              <th>assignment_score</th>
+              <th>engagement_score</th>
+              <th>status</th>
+              <th>actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Testimonials & Trust -->
+    <section style="margin-top:18px">
+      <h3>What instructors say</h3>
+      <div class="testimonials" role="list">
+        <div class="testimonial" role="listitem">
+          <strong>Dr. Meera Patel</strong>
+          <div style="color:var(--muted);margin-top:6px">"EngageSense flagged students we would have missed — saved us hours and helped outreach early."</div>
+        </div>
+        <div class="testimonial" role="listitem">
+          <strong>Prof. Arun Verma</strong>
+          <div style="color:var(--muted);margin-top:6px">"Simple integration with CSV exports. The dashboard is easy to use for non-technical instructors."</div>
+        </div>
+        <div class="testimonial" role="listitem">
+          <strong>Campus Learning Team</strong>
+          <div style="color:var(--muted);margin-top:6px">"Privacy options were critical for our adoption — anonymization works well."</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <strong>EngageSense © 2025</strong> — Developed by <strong>Suraj Maurya</strong>
+      </div>
+      <div style="display:flex;gap:12px">
+        <a class="nav-btn" href="#" id="footerDocs">Docs</a>
+        <a class="nav-btn" href="#" id="footerPrivacy">Privacy</a>
+        <a class="nav-btn" href="#" id="footerContact">Contact</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Floating settings toggle + panel -->
+  <div class="settings-toggle" id="settingsToggle" title="Open settings">
+    ⚙️
+  </div>
+  <div class="settings-panel" id="settingsPanel" aria-hidden="true">
+    <h4>Settings</h4>
+    <div style="color:var(--muted);font-size:13px">Customize demo behavior</div>
+
+    <div class="toggle-row">
+      <div>
+        <strong>Auto-flag threshold</strong><div style="color:var(--muted);font-size:13px">Anomaly sensitivity</div>
+      </div>
+      <select id="thresholdSelect">
+        <option value="low">Low (fewer flags)</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High (more flags)</option>
+      </select>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <strong>Anonymize names</strong><div style="color:var(--muted);font-size:13px">Mask student ids</div>
+      </div>
+      <label style="display:inline-block">
+        <input type="checkbox" id="anonymizeToggle" />
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <strong>Live MySQL</strong><div style="color:var(--muted);font-size:13px">If enabled, app will try to call your API (disabled in demo)</div>
+      </div>
+      <label>
+        <input type="checkbox" id="liveToggle" disabled />
+      </label>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeSettings" class="nav-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Modal for student details -->
+  <div class="modal" id="modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 id="modalTitle" style="margin:0">Student details</h3>
+          <div id="modalId" style="color:var(--muted);font-size:13px"></div>
+        </div>
+        <div>
+          <button id="closeModal" class="nav-btn">Close</button>
+        </div>
+      </div>
+
+      <div id="modalContent" style="margin-top:12px;color:var(--muted)">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       DATA + INTERACTIVITY
+       ========================= -->
+  <script>
+    /* =========================
+       Demo dataset (you can replace with CSV upload)
+       Each row columns:
+       student_id, login_count, time_spent (minutes), quiz_attempts, forum_posts, assignment_score (0-100)
+    */
+    const demoData = [
+      ["S001", 12, 360, 4, 2, 88],
+      ["S002", 3, 18, 0, 0, 20],
+      ["S003", 0, 2, 0, 0, 20],
+      ["S004", 8, 120, 3, 1, 75],
+      ["S005", 15, 320, 5, 3, 92],
+      ["S006", 1, 5, 0, 0, 22],
+      ["S007", 11, 68, 3, 5, 99],
+      ["S008", 4, 40, 1, 1, 50],
+      ["S009", 2, 10, 0, 0, 18],
+      ["S010", 9, 200, 3, 2, 80],
+      ["S011", 6, 90, 2, 1, 70],
+      ["S012", 7, 110, 2, 0, 65],
+      ["S013", 2, 22, 1, 1, 79],
+      ["S014", 14, 300, 4, 3, 88],
+      ["S015", 0, 2, 0, 0, 20],
+      ["S016", 0, 2, 0, 0, 20],
+      ["S017", 5, 60, 2, 1, 66],
+      ["S018", 13, 240, 4, 2, 95],
+      ["S019", 3, 30, 1, 0, 45],
+      ["S020", 16, 410, 6, 4, 98],
+      ["S021", 2, 14, 0, 0, 25],
+      ["S022", 1, 8, 0, 0, 20],
+      ["S023", 10, 220, 3, 2, 83],
+      ["S024", 0, 2, 0, 0, 20],
+      ["S025", 6, 78, 1, 1, 60],
+      ["S026", 4, 55, 1, 0, 50],
+      ["S027", 7, 128, 2, 1, 72],
+      ["S028", 8, 140, 3, 1, 76],
+      ["S029", 2, 18, 0, 0, 23],
+      ["S030", 12, 71, 4, 0, 73],
+      ["S031", 15, 47, 4, 1, 58],
+      ["S032", 9, 190, 3, 2, 75],
+      ["S033", 3, 26, 0, 0, 30],
+      ["S034", 0, 2, 0, 0, 20],
+      ["S035", 11, 210, 4, 3, 85],
+      ["S036", 2, 12, 0, 0, 22],
+      ["S037", 14, 260, 5, 3, 90],
+      ["S038", 2, 16, 0, 0, 24],
+      ["S039", 2, 91, 2, 2, 71],
+      ["S040", 13, 360, 5, 4, 94],
+    ];
+
+    /* Utilities */
+    function engagementScore(row){
+      // row: [id, login_count, time_spent (minutes), quiz_attempts, forum_posts, assignment_score]
+      const login = row[1];
+      const timeH = row[2] / 60; // convert minutes -> hours factor
+      const quiz = row[3];
+      const forum = row[4];
+      const assign = row[5];
+      // same formula used earlier
+      return +(login*0.25 + timeH*0.25 + quiz*0.2 + forum*0.15 + (assign/100)*0.15*10).toFixed(4);
+    }
+
+    // simple rule-based anomaly flagging (demo)
+    function isAnomaly(row, thresholdSetting='medium'){
+      const score = engagementScore(row);
+      // dynamic thresholds: lower score -> anomaly
+      let cutoff;
+      if (thresholdSetting === 'low') cutoff = 1.0;
+      else if (thresholdSetting === 'high') cutoff = 2.5;
+      else cutoff = 1.5; // medium
+      return score < cutoff;
+    }
+
+    // state
+    let data = []; // will be array of objects {id, login_count, time_spent, quiz_attempts, forum_posts, assignment_score, engagement_score, anomaly}
+    let currentThreshold = 'medium';
+    let anonymize = false;
+
+    // DOM refs
+    const tbody = document.querySelector('#studentsTable tbody');
+    const showingCount = document.getElementById('showingCount');
+    const totalStudentsEl = document.getElementById('totalStudents');
+    const atRiskEl = document.getElementById('atRiskCount');
+
+    /* Load demo data into state */
+    function loadDemoData(arr){
+      data = arr.map(r=>{
+        const id = r[0];
+        const login = +r[1];
+        const time_spent = +r[2];
+        const quiz = +r[3];
+        const forum = +r[4];
+        const assign = +r[5];
+        const eng = engagementScore([id,login,time_spent,quiz,forum,assign]);
+        const anom = isAnomaly([id,login,time_spent,quiz,forum,assign], currentThreshold);
+        return {student_id:id, login_count: login, time_spent, quiz_attempts: quiz, forum_posts: forum, assignment_score: assign, engagement_score: eng, anomaly: anom};
+      });
+      refreshUI();
+    }
+
+    /* Render table rows from filtered data */
+    function renderTable(filtered){
+      tbody.innerHTML = '';
+      filtered.forEach((d, idx)=>{
+        const tr = document.createElement('tr');
+        if (d.anomaly) tr.classList.add('anom');
+        tr.innerHTML = `
+          <td style="font-weight:700;cursor:pointer" data-index="${idx}">${anonymize ? maskId(d.student_id) : d.student_id}</td>
+          <td>${d.login_count}</td>
+          <td>${(d.time_spent).toFixed(2)}</td>
+          <td>${d.quiz_attempts}</td>
+          <td>${d.forum_posts}</td>
+          <td>${d.assignment_score}</td>
+          <td>${d.engagement_score}</td>
+          <td>${d.anomaly ? '<span style="background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#031016;padding:6px 8px;border-radius:999px;font-weight:800">At-Risk</span>' : 'Normal'}</td>
+          <td><button class="remove-btn" data-id="${d.student_id}">Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* Mask ID like S0X -> Sxxx (for anonymize) */
+    function maskId(id){
+      return id[0] + '***' + id.slice(-1);
+    }
+
+    /* Apply filters from controls and return filtered array */
+    function getFilteredData(){
+      const q = (document.getElementById('searchBox').value || '').trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const sort = document.getElementById('sortSelect').value;
+
+      let filtered = data.filter(d=>{
+        let ok = true;
+        if (status === 'normal') ok = !d.anomaly;
+        if (status === 'anomaly') ok = d.anomaly;
+        if (q){
+          ok = ok && (d.student_id.toLowerCase().includes(q));
+        }
+        return ok;
+      });
+
+      // sorting
+      if (sort === 'engagement_desc') filtered.sort((a,b)=>b.engagement_score - a.engagement_score);
+      else if (sort === 'engagement_asc') filtered.sort((a,b)=>a.engagement_score - b.engagement_score);
+      else if (sort === 'time_desc') filtered.sort((a,b)=>b.time_spent - a.time_spent);
+      else if (sort === 'time_asc') filtered.sort((a,b)=>a.time_spent - b.time_spent);
+
+      // return filtered
+      return filtered;
+    }
+
+    /* Refresh UI: stats + table + counts */
+    function refreshUI(){
+      // recalc anomalies with current threshold
+      data.forEach(d=>{
+        d.anomaly = isAnomaly([d.student_id, d.login_count, d.time_spent, d.quiz_attempts, d.forum_posts, d.assignment_score], currentThreshold);
+      });
+
+      const filtered = getFilteredData();
+      renderTable(filtered);
+
+      // counts
+      const total = data.length;
+      const atRisk = data.filter(d=>d.anomaly).length;
+      totalStudentsEl.textContent = total;
+      atRiskEl.textContent = atRisk;
+
+      showingCount.textContent = `Showing ${filtered.length} of ${total}`;
+    }
+
+    /* Remove a student by id */
+    function removeStudent(id){
+      data = data.filter(d=>d.student_id !== id);
+      refreshUI();
+    }
+
+    /* Modal */
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalId = document.getElementById('modalId');
+    const modalContent = document.getElementById('modalContent');
+    function openModal(d){
+      modal.classList.add('open');
+      modalTitle.textContent = `Student ${d.student_id}`;
+      modalId.textContent = `ID: ${d.student_id}`;
+      modalContent.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+          <div><strong>Login count</strong><div style="color:var(--muted)">${d.login_count}</div></div>
+          <div><strong>Time spent (min)</strong><div style="color:var(--muted)">${d.time_spent}</div></div>
+          <div><strong>Quiz attempts</strong><div style="color:var(--muted)">${d.quiz_attempts}</div></div>
+          <div><strong>Forum posts</strong><div style="color:var(--muted)">${d.forum_posts}</div></div>
+          <div><strong>Assignment</strong><div style="color:var(--muted)">${d.assignment_score}</div></div>
+          <div><strong>Engagement score</strong><div style="color:var(--muted)">${d.engagement_score}</div></div>
+        </div>
+        <div style="margin-top:12px">
+          <strong>Project Summary (from description)</strong>
+          <p style="color:var(--muted);margin:6px 0 0;font-size:13px">
+            EngageSense collects student interaction data and uses AI (IsolationForest) to flag at-risk students, providing instructors actionable insights to intervene and improve retention.
+          </p>
+        </div>
+      `;
+    }
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('open'));
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) modal.classList.remove('open'); });
+
+    /* Event delegation for table interactions */
+    tbody.addEventListener('click', function(e){
+      // click on remove
+      if (e.target.matches('.remove-btn')){
+        const id = e.target.getAttribute('data-id');
+        if (confirm(`Remove ${id} from dataset? This only affects the demo.`)){
+          removeStudent(id);
+        }
+        return;
+      }
+      // click on student id cell to open modal
+      if (e.target.matches('td') && e.target.dataset.index !== undefined){
+        const idx = +e.target.dataset.index;
+        const filtered = getFilteredData();
+        const d = filtered[idx];
+        if (d) openModal(d);
+      }
+    });
+
+    // clicking a <td> with student id (we put data-index in cell)
+    // Since we re-render rows, we set data-index to the row position within filtered list.
+
+    /* Wire up controls */
+    document.getElementById('searchBox').addEventListener('input', refreshUI);
+    document.getElementById('statusFilter').addEventListener('change', refreshUI);
+    document.getElementById('sortSelect').addEventListener('change', refreshUI);
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      document.getElementById('searchBox').value = '';
+      document.getElementById('statusFilter').value = 'all';
+      document.getElementById('sortSelect').value = 'engagement_desc';
+      refreshUI();
+    });
+
+    // stat cards click to filter
+    document.getElementById('cardTotal').addEventListener('click', ()=>{
+      document.getElementById('statusFilter').value = 'all';
+      document.getElementById('searchBox').value = '';
+      refreshUI();
+      window.scrollTo({top: document.getElementById('dashboardSection').offsetTop - 20, behavior:'smooth'});
+    });
+    document.getElementById('cardAtRisk').addEventListener('click', ()=>{
+      document.getElementById('statusFilter').value = 'anomaly';
+      document.getElementById('searchBox').value = '';
+      refreshUI();
+      window.scrollTo({top: document.getElementById('dashboardSection').offsetTop - 20, behavior:'smooth'});
+    });
+
+    /* CSV upload -> parse simple CSV (client-side) */
+    document.getElementById('uploadBtn').addEventListener('click', ()=> document.getElementById('csvUpload').click());
+    document.getElementById('csvUpload').addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        try{
+          const text = evt.target.result;
+          // naive CSV parse: expects header row matching our columns or same order
+          const rows = text.trim().split(/\r?\n/).map(r=>r.split(',').map(c=>c.trim()));
+          // if first row has non-number in second column, treat as header; skip it
+          const first = rows[0];
+          let start = 0;
+          if (isNaN(first[1])) start = 1;
+          const parsed = rows.slice(start).map(r=>{
+            // ensure length; fallback to zeros
+            return [
+              r[0] || `SXX`, // id
+              +(r[1] || 0),
+              +(r[2] || 0),
+              +(r[3] || 0),
+              +(r[4] || 0),
+              +(r[5] || 0),
+            ];
+          });
+          if (parsed.length === 0) { alert('No rows parsed from CSV'); return; }
+          loadDemoData(parsed);
+          alert('CSV loaded into demo (client-side).');
+        }catch(err){ alert('Error parsing CSV: ' + err.message); }
+      };
+      reader.readAsText(file);
+    });
+
+    /* Export visible table to CSV */
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const filtered = getFilteredData();
+      const lines = [['student_id','login_count','time_spent','quiz_attempts','forum_posts','assignment_score','engagement_score','status']];
+      filtered.forEach(d=>{
+        lines.push([d.student_id, d.login_count, d.time_spent, d.quiz_attempts, d.forum_posts, d.assignment_score, d.engagement_score, d.anomaly ? 'At-Risk' : 'Normal']);
+      });
+      const csv = lines.map(r=>r.join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'engagesense_export.csv'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    /* Settings panel */
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    settingsToggle.addEventListener('click', ()=> settingsPanel.classList.toggle('open'));
+    document.getElementById('closeSettings').addEventListener('click', ()=> settingsPanel.classList.remove('open'));
+
+    // threshold change
+    document.getElementById('thresholdSelect').addEventListener('change', (e)=>{
+      currentThreshold = e.target.value;
+      refreshUI();
+    });
+
+    document.getElementById('anonymizeToggle').addEventListener('change', (e)=>{
+      anonymize = e.target.checked;
+      refreshUI();
+    });
+
+    /* Navigation buttons (example behavior) */
+    document.getElementById('tryDemo').addEventListener('click', ()=>{
+      alert('Demo started — this demo runs locally in your browser. Use Upload CSV or interact with the table.');
+    });
+    document.getElementById('viewDash').addEventListener('click', ()=> {
+      document.getElementById('statusFilter').value = 'all';
+      window.scrollTo({top: document.getElementById('dashboardSection').offsetTop - 10, behavior:'smooth'});
+    });
+    document.getElementById('docsBtn').addEventListener('click', ()=> alert('Open README / Docs (add your docs link).'));
+    document.getElementById('aboutBtn').addEventListener('click', ()=> alert('Project: EngageSense • AI-powered engagement analytics for LMS.'));
+    document.getElementById('getDemoBtn').addEventListener('click', ()=> alert('To host live, deploy Streamlit or host this landing and connect dashboard API.'));
+
+    /* Footer links */
+    document.getElementById('footerDocs').addEventListener('click', ()=> alert('Docs link — add your README or GitHub link.'));
+    document.getElementById('footerPrivacy').addEventListener('click', ()=> alert('Privacy — add policy text.'));
+    document.getElementById('footerContact').addEventListener('click', ()=> alert('Contact — add email or phone.'));
+
+    /* Clicking table header to sort by column (bonus) */
+    document.querySelectorAll('#studentsTable thead th').forEach((th, idx)=>{
+      if (idx === 0) return; // ignore id
+      th.addEventListener('click', ()=>{
+        // simple map idx to sort
+        if (idx === 2) document.getElementById('sortSelect').value = 'time_desc';
+        else if (idx === 6) document.getElementById('sortSelect').value = 'engagement_desc';
+        refreshUI();
+      });
+    });
+
+    /* Init */
+    loadDemoData(demoData);
+
+    /* Add small animation to chart placeholder (non-blocking) */
+    (function animatePlaceholder(){
+      const el = document.getElementById('chartPlaceholder');
+      let t = 0;
+      function frame(){
+        t += 0.02;
+        el.style.background = `linear-gradient(180deg, rgba(8,17,25,${0.6 + 0.02*Math.sin(t)}), rgba(6,10,18,0.9))`;
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
+start index.html
+
+exit
