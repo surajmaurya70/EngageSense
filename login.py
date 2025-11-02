@@ -1,14 +1,13 @@
 import streamlit as st
 
 def show_login_page():
-    # Hide Streamlit branding
+    # CSS styling
     st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
         
-        /* White background */
         .stApp {
             background: white;
             display: flex;
@@ -17,13 +16,11 @@ def show_login_page():
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
-        /* Remove padding */
         .block-container {
             padding: 0 !important;
             max-width: 100% !important;
         }
         
-        /* Main heading */
         .main-heading {
             font-size: 36px;
             font-weight: 700;
@@ -33,7 +30,6 @@ def show_login_page():
             line-height: 1.3;
         }
         
-        /* Subtitle */
         .subtitle {
             text-align: center;
             color: #9ca3af;
@@ -41,12 +37,10 @@ def show_login_page():
             margin-bottom: 40px;
         }
         
-        /* Input container */
         .stTextInput {
             margin-bottom: 20px;
         }
         
-        /* Input labels */
         .stTextInput > label {
             color: #6b7280 !important;
             font-size: 13px !important;
@@ -55,7 +49,6 @@ def show_login_page():
             display: block !important;
         }
         
-        /* Input fields */
         .stTextInput > div > div > input {
             background: white !important;
             border: 1.5px solid #6366f1 !important;
@@ -75,30 +68,6 @@ def show_login_page():
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
         }
         
-        /* Remember me and Forgot password row */
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0 25px 0;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        
-        .forgot-password {
-            color: #6b7280;
-            font-size: 14px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        /* Login button */
         .stButton > button {
             width: 100%;
             background: #6366f1 !important;
@@ -118,13 +87,6 @@ def show_login_page():
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
         }
         
-        /* Error styling */
-        .stAlert {
-            border-radius: 8px !important;
-            font-size: 13px !important;
-        }
-        
-        /* Checkbox styling */
         .stCheckbox {
             margin: 0 !important;
         }
@@ -140,7 +102,7 @@ def show_login_page():
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        # Main heading - IMPROVED VERSION
+        # Main heading
         st.markdown('<div class="main-heading">Welcome to<br>EngageSense</div>', unsafe_allow_html=True)
         
         # Subtitle
@@ -159,11 +121,10 @@ def show_login_page():
         with col_forgot:
             st.markdown('<div style="text-align: right; color: #6b7280; font-size: 14px; margin-top: 8px;">Forgot Password?</div>', unsafe_allow_html=True)
         
-        # Login button
+        # Login button - DEMO MODE: any credentials work
         if st.button("Login", use_container_width=True):
-            if email == "admin@engagesense.com" and password == "admin123":
+            if email and password:
                 st.session_state.logged_in = True
                 st.rerun()
             else:
-                st.error("❌ Invalid credentials. Please try again.")
-
+                st.warning("⚠️ Please enter both email and password")
