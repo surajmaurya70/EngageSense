@@ -47,10 +47,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-page = st.radio("", ["Dashboard", "Students", "Reports"], 
-                horizontal=True, key="page_selector",
-                label_visibility="collapsed")
-st.session_state.current_page = page
+# Get page from session state (set by navbar buttons)
+page = st.session_state.current_page
+
+# Radio button synced with session state
+st.radio("", ["Dashboard", "Students", "Reports"], 
+         horizontal=True, key="page_selector",
+         label_visibility="collapsed",
+         index=["Dashboard", "Students", "Reports"].index(page))
 
 if page != "Dashboard":
     if page == "Students":
