@@ -23,33 +23,6 @@ def show_login_page():
             max-width: 100% !important;
         }
         
-        /* Logo at top left */
-        .top-logo {
-            position: fixed;
-            top: 30px;
-            left: 40px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1f36;
-            z-index: 1000;
-        }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-        }
-        
         /* Login box */
         .login-box {
             background: white;
@@ -145,55 +118,6 @@ def show_login_page():
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
         }
         
-        /* OR divider */
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 28px 0;
-            color: #6b7280;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
-        }
-        
-        .divider span {
-            padding: 0 16px;
-        }
-        
-        /* Social login buttons */
-        .social-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        
-        .social-btn {
-            flex: 1;
-            background: white;
-            border: 1.5px solid #e0e4e8;
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 22px;
-        }
-        
-        .social-btn:hover {
-            border-color: #6366f1;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
-            transform: translateY(-1px);
-        }
-        
         /* Bottom text */
         .bottom-text {
             text-align: center;
@@ -208,29 +132,13 @@ def show_login_page():
             text-decoration: none;
         }
         
-        /* Error/Info styling */
+        /* Error styling */
         .stAlert {
             border-radius: 8px !important;
             font-size: 13px !important;
         }
-        
-        div[data-testid="stInfo"] {
-            background: #eff6ff !important;
-            border: 1px solid #bfdbfe !important;
-            color: #1e40af !important;
-            border-radius: 8px !important;
-            margin-top: 20px !important;
-        }
     </style>
     """, unsafe_allow_html=True)
-    
-    # Logo at top left
-    st.markdown('''
-    <div class="top-logo">
-        <div class="logo-icon">📊</div>
-        <span>EngageSense</span>
-    </div>
-    ''', unsafe_allow_html=True)
     
     # Center container
     col1, col2, col3 = st.columns([1, 1.2, 1])
@@ -260,18 +168,6 @@ def show_login_page():
             else:
                 st.error("❌ Invalid credentials. Please try again.")
         
-        # OR divider
-        st.markdown('<div class="divider"><span>or sign up with</span></div>', unsafe_allow_html=True)
-        
-        # Social login buttons
-        st.markdown('''
-        <div class="social-buttons">
-            <div class="social-btn">📘</div>
-            <div class="social-btn">🔍</div>
-            <div class="social-btn">🍎</div>
-        </div>
-        ''', unsafe_allow_html=True)
-        
         # Bottom text
         st.markdown('''
         <div class="bottom-text">
@@ -280,7 +176,5 @@ def show_login_page():
         ''', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Demo credentials
-        st.info("💡 **Demo Login**  \nadmin@engagesense.com / admin123")
+
 
