@@ -60,67 +60,64 @@ if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
         
-        # Sample student data - replace with your actual data source
-        students = [
-            {"id": "STU2024001", "name": "Rahul Sharma", "score": 85.5, "logins": 45, "hours": 23.5, "status": "Active"},
-            {"id": "STU2024002", "name": "Priya Singh", "score": 92.3, "logins": 52, "hours": 28.2, "status": "Active"},
-            {"id": "STU2024003", "name": "Amit Kumar", "score": 67.8, "logins": 32, "hours": 15.8, "status": "At Risk"},
-            {"id": "STU2024004", "name": "Sneha Patel", "score": 78.9, "logins": 41, "hours": 21.3, "status": "Active"},
-            {"id": "STU2024005", "name": "Vikram Reddy", "score": 58.2, "logins": 28, "hours": 12.5, "status": "At Risk"},
-            {"id": "STU2024006", "name": "Anjali Verma", "score": 88.7, "logins": 48, "hours": 25.9, "status": "Active"},
-        ]
+        # Load same CSV data as Dashboard
+        try:
+            df = pd.read_csv("students_engagement.csv")
+            
+            # Summary metrics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("📊 Total Students", len(df))
+            with col2:
+                active_count = len(df[df["anomaly_flag"] == "Active"])
+                st.metric("✅ Active", active_count)
+            with col3:
+                at_risk = len(df[df["anomaly_flag"] == "At Risk"])
+                st.metric("⚠️ At Risk", at_risk)
+            with col4:
+                avg_score = df["engagement_score"].mean()
+                st.metric("📈 Avg Score", f"{avg_score:.1f}")
+            
+            st.divider()
+            
+            # Search
+            search = st.text_input("🔍 Search by Student ID or Name", key="student_search")
+            
+            # Filter
+            filtered_df = df.copy()
+            if search:
+                filtered_df = df[df["student_id"].astype(str).str.contains(search, case=False)]
+            
+            st.markdown(f"### 👨‍🎓 Showing {len(filtered_df)} Students")
+            
+            # Display student cards
+            for idx, row in filtered_df.iterrows():
+                with st.container():
+                    col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1.5, 1])
+                    
+                    with col1:
+                        st.markdown(f"**Student {row['student_id']}**")
+                        st.caption(f"ID: {row['student_id']}")
+                    
+                    with col2:
+                        st.metric("Engagement", f"{row['engagement_score']:.1f}")
+                    
+                    with col3:
+                        st.metric("Logins", int(row['login_count']))
+                    
+                    with col4:
+                        st.metric("Hours", f"{row['time_spent']:.1f}")
+                    
+                    with col5:
+                        if row['anomaly_flag'] == "Active":
+                            st.success("✅ Active")
+                        else:
+                            st.warning("⚠️ At Risk")
+                    
+                    st.divider()
         
-        # Summary metrics
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("📊 Total Students", len(students))
-        with col2:
-            active_count = sum(1 for s in students if s['status'] == 'Active')
-            st.metric("✅ Active", active_count)
-        with col3:
-            at_risk = len(students) - active_count
-            st.metric("⚠️ At Risk", at_risk)
-        with col4:
-            avg_score = sum(s['score'] for s in students) / len(students)
-            st.metric("📈 Avg Score", f"{avg_score:.1f}")
-        
-        st.divider()
-        
-        # Search
-        search = st.text_input("🔍 Search by Student ID or Name", key="student_search")
-        
-        # Filter students
-        filtered = students
-        if search:
-            filtered = [s for s in students if search.lower() in s['id'].lower() or search.lower() in s['name'].lower()]
-        
-        st.markdown(f"### 👨‍🎓 Showing {len(filtered)} Students")
-        
-        # Display student cards
-        for student in filtered:
-            with st.container():
-                col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1.5, 1])
-                
-                with col1:
-                    st.markdown(f"**{student['name']}**")
-                    st.caption(student['id'])
-                
-                with col2:
-                    st.metric("Engagement Score", f"{student['score']:.1f}")
-                
-                with col3:
-                    st.metric("Logins", student['logins'])
-                
-                with col4:
-                    st.metric("Hours", f"{student['hours']:.1f}")
-                
-                with col5:
-                    if student['status'] == "Active":
-                        st.success("✅ Active")
-                    else:
-                        st.warning("⚠️ At Risk")
-                
-                st.divider()
+        except FileNotFoundError:
+            st.error("❌ students_engagement.csv file not found! Please check Dashboard.")
         
         st.stop()  # Stop dashboard from loading
     elif page == "Reports":
