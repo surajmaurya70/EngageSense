@@ -1,130 +1,109 @@
 import streamlit as st
 
 def show_login_page():
-    # CSS styling
+    # Hide Streamlit default UI
     st.markdown("""
     <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        
+        #MainMenu, footer, header {visibility: hidden;}
         .stApp {
-            background: white;
+            background: #f9fafb;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        
         .block-container {
-            padding: 0 !important;
-            max-width: 100% !important;
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+            max-width: 420px !important;
         }
-        
         .main-heading {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 700;
-            color: #3d4f5d;
+            color: #111827;
             text-align: center;
-            margin-bottom: 12px;
-            line-height: 1.3;
+            margin-bottom: 10px;
         }
-        
         .subtitle {
             text-align: center;
-            color: #9ca3af;
+            color: #6b7280;
             font-size: 15px;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
         }
-        
-        .stTextInput {
-            margin-bottom: 20px;
-        }
-        
         .stTextInput > label {
-            color: #6b7280 !important;
-            font-size: 13px !important;
+            color: #374151 !important;
             font-weight: 500 !important;
-            margin-bottom: 8px !important;
-            display: block !important;
+            font-size: 14px !important;
         }
-        
-        .stTextInput > div > div > input {
-            background: white !important;
+        .stTextInput input {
             border: 1.5px solid #6366f1 !important;
             border-radius: 8px !important;
-            padding: 14px 16px !important;
+            padding: 12px 14px !important;
+            color: #374151 !important;
+            background-color: white !important;
             font-size: 15px !important;
-            color: #6b7280 !important;
-            transition: all 0.2s ease !important;
         }
-        
-        .stTextInput > div > div > input::placeholder {
-            color: #d1d5db !important;
+        .stTextInput input:focus {
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
         }
-        
-        .stTextInput > div > div > input:focus {
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
-        }
-        
         .stButton > button {
             width: 100%;
-            background: #6366f1 !important;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
             color: white !important;
             border: none !important;
             border-radius: 8px !important;
-            padding: 14px !important;
+            padding: 12px !important;
             font-size: 16px !important;
             font-weight: 600 !important;
             cursor: pointer !important;
-            transition: all 0.2s ease !important;
+            transition: 0.25s ease !important;
         }
-        
         .stButton > button:hover {
-            background: #4f46e5 !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(99,102,241,0.25) !important;
         }
-        
-        .stCheckbox {
-            margin: 0 !important;
+        .extra-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13.5px;
+            color: #6b7280;
+            margin-bottom: 25px;
         }
-        
-        .stCheckbox > label {
-            color: #6b7280 !important;
-            font-size: 14px !important;
+        .forgot-link {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        .forgot-link:hover {
+            text-decoration: underline;
         }
     </style>
     """, unsafe_allow_html=True)
-    
-    # Center container
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    
-    with col2:
-        # Main heading
-        st.markdown('<div class="main-heading">Welcome to<br>EngageSense</div>', unsafe_allow_html=True)
-        
-        # Subtitle
-        st.markdown('<div class="subtitle">Sign in to access your student engagement dashboard</div>', unsafe_allow_html=True)
-        
-        # Email input
-        email = st.text_input("E-mail", placeholder="example@email.com", key="email")
-        
-        # Password input
-        password = st.text_input("Password", type="password", placeholder="Your Password", key="password")
-        
-        # Remember me checkbox and Forgot password
-        col_check, col_forgot = st.columns([1, 1])
-        with col_check:
-            remember_me = st.checkbox("Remember me")
-        with col_forgot:
-            st.markdown('<div style="text-align: right; color: #6b7280; font-size: 14px; margin-top: 8px;">Forgot Password?</div>', unsafe_allow_html=True)
-        
-        # Login button - DEMO MODE: any credentials work
-        if st.button("Login", use_container_width=True):
-            if email and password:
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.warning("⚠️ Please enter both email and password")
+
+    # Title & Subtitle
+    st.markdown('<div class="main-heading">Welcome to EngageSense</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Sign in to access your engagement analytics dashboard</div>', unsafe_allow_html=True)
+
+    # Email & Password
+    email = st.text_input("Email Address", placeholder="example@email.com")
+    password = st.text_input("Password", type="password", placeholder="••••••••")
+
+    # Remember Me + Forgot Password
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        remember = st.checkbox("Remember me")
+    with c2:
+        st.markdown('<div style="text-align:right;"><a href="#" class="forgot-link">Forgot Password?</a></div>', unsafe_allow_html=True)
+
+    # Login button
+    if st.button("Login"):
+        if email and password:
+            st.session_state.logged_in = True
+            st.success("✅ Login successful! Redirecting...")
+            st.rerun()
+        else:
+            st.warning("⚠️ Please enter both email and password")
+
+    # Footer credits
+    st.markdown("<p style='text-align:center; color:#9ca3af; font-size:13px; margin-top:35px;'>EngageSense © 2025 | Developed by Suraj Maurya</p>", unsafe_allow_html=True)
