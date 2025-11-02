@@ -115,6 +115,22 @@ if page != "Dashboard":
             
         else:
             st.info("👆 Please upload a CSV file to view student data")
+            
+            # Sample CSV download
+            sample_data = """student_id,engagement_score,login_count,time_spent,anomaly_flag
+202401,76.4,12,10.8,Active
+202402,59.8,9,7.1,At Risk
+202403,91.2,17,19.3,Active
+202404,68.5,11,9.2,Active
+202405,45.3,6,4.5,At Risk"""
+            
+            st.download_button(
+                label="📥 Download Sample CSV",
+                data=sample_data,
+                file_name="sample_students.csv",
+                mime="text/csv"
+            )
+            
             st.markdown("""
             **Expected CSV format:**
             - student_id
