@@ -1,220 +1,214 @@
 import streamlit as st
 
 def show_login_page():
-    # Hide Streamlit default elements
+    # Hide Streamlit branding
     st.markdown("""
     <style>
-        /* Hide Streamlit branding */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
         
-        /* Full-screen gradient background */
+        /* Full-screen black background */
         .stApp {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
-        /* Main login container with glassmorphism */
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 50px 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
+        /* Remove default padding */
+        .block-container {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+        
+        /* Login box container */
+        .login-box {
+            background: #000000;
+            max-width: 350px;
             width: 100%;
-            animation: slideIn 0.6s ease-out;
-        }
-        
-        /* Slide-in animation */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Logo/Title styling */
-        .login-title {
             text-align: center;
-            margin-bottom: 10px;
+            animation: fadeIn 0.6s ease;
         }
         
-        .login-title h1 {
-            font-size: 48px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-            animation: pulse 2s infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        /* Instagram logo styling */
+        .insta-logo {
+            font-family: 'Billabong', 'Brush Script MT', cursive;
+            font-size: 52px;
+            color: #ffffff;
+            margin-bottom: 35px;
+            font-weight: 400;
+            letter-spacing: 2px;
         }
         
-        .login-subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-        
-        /* Input field styling */
-        .stTextInput > div > div > input {
-            border-radius: 12px;
-            border: 2px solid #e0e0e0;
-            padding: 14px 18px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-        
-        .stTextInput > div > div > input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background: white;
-        }
-        
-        /* Label styling */
-        .stTextInput > label {
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
+        /* Input container */
+        .input-container {
             margin-bottom: 8px;
         }
         
-        /* Login button styling */
+        /* Input fields */
+        .stTextInput > div > div > input {
+            background: #121212 !important;
+            border: 1px solid #262626 !important;
+            border-radius: 3px !important;
+            padding: 12px 10px !important;
+            font-size: 14px !important;
+            color: #ffffff !important;
+            transition: border-color 0.2s ease !important;
+        }
+        
+        .stTextInput > div > div > input::placeholder {
+            color: #8e8e8e !important;
+        }
+        
+        .stTextInput > div > div > input:focus {
+            border-color: #555555 !important;
+        }
+        
+        /* Hide labels */
+        .stTextInput > label {
+            display: none;
+        }
+        
+        /* Login button */
         .stButton > button {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            margin-top: 10px;
+            background: #0095f6 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: background 0.2s ease !important;
+            margin-top: 12px !important;
         }
         
         .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            background: #1877f2 !important;
         }
         
-        .stButton > button:active {
-            transform: translateY(0);
-        }
-        
-        /* Error message styling */
-        .stAlert {
-            border-radius: 12px;
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        /* Divider styling */
+        /* OR divider */
         .divider {
-            text-align: center;
-            margin: 30px 0;
-            position: relative;
+            display: flex;
+            align-items: center;
+            margin: 25px 0 20px 0;
+            color: #8e8e8e;
+            font-size: 13px;
+            font-weight: 600;
         }
         
         .divider::before,
         .divider::after {
             content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
+            flex: 1;
             height: 1px;
-            background: #e0e0e0;
+            background: #262626;
         }
-        
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
         
         .divider span {
-            background: white;
-            padding: 0 15px;
-            color: #999;
-            font-size: 13px;
+            padding: 0 18px;
+        }
+        
+        /* Facebook login button */
+        .fb-login {
+            color: #385185;
+            font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
         
-        /* Footer text */
-        .login-footer {
-            text-align: center;
-            margin-top: 25px;
-            color: #999;
-            font-size: 13px;
+        /* Forgot password */
+        .forgot-password {
+            color: #00376b;
+            font-size: 12px;
+            margin-top: 18px;
         }
         
-        /* Remove extra spacing */
-        .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
+        /* Signup box */
+        .signup-box {
+            background: #121212;
+            border: 1px solid #262626;
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 3px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        .signup-box a {
+            color: #0095f6;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        /* Error styling */
+        .stAlert {
+            background: #121212 !important;
+            border: 1px solid #ed4956 !important;
+            color: #ed4956 !important;
+            border-radius: 3px !important;
+            font-size: 12px !important;
+            padding: 8px !important;
+        }
+        
+        /* Info box (demo credentials) */
+        div[data-testid="stInfo"] {
+            background: #121212 !important;
+            border: 1px solid #262626 !important;
+            color: #a8a8a8 !important;
+            border-radius: 3px !important;
+            font-size: 12px !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Center container
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Center everything
+    col1, col2, col3 = st.columns([1, 1, 1])
     
     with col2:
-        # Logo/Title
-        st.markdown("""
-        <div class="login-container">
-            <div class="login-title">
-                <h1>📊 EngageSense</h1>
-            </div>
-            <p class="login-subtitle">AI-Powered Student Engagement Analytics</p>
-        """, unsafe_allow_html=True)
+        # Logo
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown('<div class="insta-logo">EngageSense</div>', unsafe_allow_html=True)
         
-        # Login form
-        username = st.text_input("👤 Username", placeholder="Enter your username", key="login_username")
-        password = st.text_input("🔒 Password", type="password", placeholder="Enter your password", key="login_password")
+        # Input fields
+        username = st.text_input("Username", placeholder="Phone number, username or email address", 
+                                  key="username", label_visibility="collapsed")
+        password = st.text_input("Password", type="password", placeholder="Password", 
+                                  key="password", label_visibility="collapsed")
         
         # Login button
-        if st.button("🚀 Log In", use_container_width=True):
+        if st.button("Log in", use_container_width=True):
             if username == "admin" and password == "admin123":
                 st.session_state.logged_in = True
                 st.rerun()
             else:
-                st.error("❌ Invalid credentials! Please try again.")
+                st.error("Incorrect credentials. Please try again.")
         
-        # Divider
-        st.markdown("""
-        <div class="divider">
-            <span>OR</span>
-        </div>
-        """, unsafe_allow_html=True)
+        # OR divider
+        st.markdown('<div class="divider"><span>OR</span></div>', unsafe_allow_html=True)
         
-        # Demo credentials
-        st.info("💡 **Demo Credentials**\n\n👤 Username: `admin`  \n🔑 Password: `admin123`")
+        # Facebook login (non-functional, just for UI)
+        st.markdown('<div class="fb-login">🔵 Log in with Facebook</div>', unsafe_allow_html=True)
         
-        # Footer
-        st.markdown("""
-        <div class="login-footer">
-            <p>© 2025 EngageSense. All rights reserved.</p>
+        # Forgot password
+        st.markdown('<div class="forgot-password">Forgotten your password?</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Signup box
+        st.markdown('''
+        <div class="signup-box">
+            Don't have an account? <a href="#">Sign up</a>
         </div>
-        </div>
-        """, unsafe_allow_html=True)
-
+        ''', unsafe_allow_html=True)
+        
+        # Demo credentials (optional - remove if not needed)
+        st.info("💡 Demo: admin / admin123")
