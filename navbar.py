@@ -26,7 +26,5 @@ def show_navbar():
             st.session_state.current_page = "Reports"
             st.rerun()
     
-    # Show current page
-    st.caption(f"📍 {st.session_state.current_page}")
+    # Divider only (removed caption)
     st.divider()
-
