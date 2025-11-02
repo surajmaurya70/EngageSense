@@ -278,9 +278,7 @@ else:
 st.markdown(f"""
 <div style="margin-top: 4rem; padding: 3rem; text-align: center; background: {t['surface']};
      border-radius: 24px; border: 2px solid {t['border']}; animation: fadeInUp 1.2s ease;">
-    <h2 style="color: #1a73e8; margin: 0 0 1rem 0; font-size: 1.75rem; border: none; padding: 0;">📊 EngageSense</h2>
-    <p style="color: {t['text']}; font-size: 1.125rem;">By <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
-    <p style="color: {t['secondary']}; font-size: 1rem; margin: 1rem 0;">🤖 AI · 📊 ML · 🐍 Python · ⚡ Streamlit</p>
-    <p style="color: {t['secondary']}; font-size: 0.875rem;">© 2025 All Rights Reserved</p>
+    <p style="color: {t['text']}; font-size: 1rem;">EngageSense © 2025 | Developed by <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
+    <p style="color: {t['secondary']}; font-size: 0.9rem;">Empowering Educators through Data & AI 💡</p>
 </div>
 """, unsafe_allow_html=True)
