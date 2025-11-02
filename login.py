@@ -23,28 +23,6 @@ def show_login_page():
             max-width: 100% !important;
         }
         
-        /* Login box */
-        .login-box {
-            background: white;
-            max-width: 450px;
-            width: 100%;
-            padding: 50px 45px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            animation: slideUp 0.5s ease;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         /* Main heading */
         .main-heading {
             font-size: 32px;
@@ -136,9 +114,7 @@ def show_login_page():
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        
-        # Main heading only
+        # Main heading
         st.markdown('<div class="main-heading">Sign Up to EngageSense</div>', unsafe_allow_html=True)
         
         # Email input
@@ -165,8 +141,7 @@ def show_login_page():
             Have an account? <a href="#">Sign in</a>
         </div>
         ''', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
