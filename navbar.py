@@ -1,33 +1,33 @@
 import streamlit as st
 
 def show_navbar():
-    # Initialize session state for page navigation
+    # Session state for page navigation
     if 'page' not in st.session_state:
         st.session_state.page = 'Dashboard'
     
-    # Navigation buttons ABOVE the navbar HTML
+    # Clickable navigation with invisible buttons positioned ABOVE HTML
     col1, col2, col3, col4, col5, col6, col7 = st.columns([1.5, 0.8, 0.8, 0.8, 2, 0.8, 0.8])
     
     with col2:
-        if st.button("📊", key="dash_click", help="Dashboard"):
+        if st.button("📊", key="dash", help="Dashboard", use_container_width=True):
             st.session_state.page = "Dashboard"
             st.rerun()
     with col3:
-        if st.button("👥", key="students_click", help="Students"):
+        if st.button("👥", key="stud", help="Students", use_container_width=True):
             st.session_state.page = "Students"
             st.rerun()
     with col4:
-        if st.button("📈", key="reports_click", help="Reports"):
+        if st.button("📈", key="rep", help="Reports", use_container_width=True):
             st.session_state.page = "Reports"
             st.rerun()
     with col6:
-        if st.button("⚙️", key="filters_click", help="Filters"):
-            st.toast("Filters panel opened!")
+        if st.button("⚙️", key="filt", help="Filters", use_container_width=True):
+            st.toast("⚙️ Filters panel!")
     with col7:
-        if st.button("🔔", key="notif_click", help="Notifications"):
-            st.toast("3 new notifications!")
+        if st.button("🔔", key="notif", help="Notifications", use_container_width=True):
+            st.toast("🔔 3 new alerts!")
     
-    # Beautiful navbar HTML (without Export)
+    # Beautiful HTML navbar (visual only, buttons above are functional)
     st.markdown("""
     <style>
     .navbar {
@@ -37,7 +37,7 @@ def show_navbar():
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid #e5e5e5;
-        margin: -5rem -2rem 2rem -2rem;
+        margin: -6rem -2rem 2rem -2rem;
         position: relative;
         z-index: 1;
     }
@@ -81,12 +81,6 @@ def show_navbar():
         border-radius: 8px;
         font-weight: 500;
         color: #666;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    .nav-tab:hover {
-        background: #f5f5f5;
-        color: #1a1a1a;
     }
     .nav-tab.active {
         color: #1a1a1a;
@@ -102,7 +96,6 @@ def show_navbar():
         border-radius: 10px;
         border: 1px solid #e5e5e5;
         background: white;
-        cursor: pointer;
         font-weight: 500;
         display: flex;
         align-items: center;
@@ -150,3 +143,6 @@ def show_navbar():
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Show current page indicator
+    st.caption(f"📍 Current page: **{st.session_state.page}**")
