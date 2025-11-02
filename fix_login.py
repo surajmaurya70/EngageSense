@@ -1,4 +1,4 @@
-import streamlit as st
+login_content = '''import streamlit as st
 import hashlib
 
 def hash_password(password):
@@ -94,3 +94,9 @@ def show_login_page():
         st.markdown("<hr style='margin:2rem 0;'>", unsafe_allow_html=True)
         st.caption("**Demo credentials:** Any email and password will work")
         st.caption("© 2025 EngageSense • Privacy-first analytics for educators")
+'''
+
+with open('login.py', 'w') as f:
+    f.write(login_content)
+
+print("✅ Login fixed - any credentials now work!")
