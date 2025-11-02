@@ -59,10 +59,7 @@ st.radio("", ["Dashboard", "Students", "Reports"],
 if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
-        # Remove st.stop() - let dashboard data load below
-
-        # Use same data loading as Dashboard (lines below will use the data)
-        st.stop()  # This allows dashboard data loading to work
+        pass  # Let dashboard data load and display
     elif page == "Reports":
         st.title("📈 Reports & Analytics")
         col1, col2 = st.columns(2)
@@ -71,7 +68,7 @@ if page != "Dashboard":
         with col2:
             st.selectbox("Course", ["All", "AI101", "ML201"])
         st.button("📥 Generate Report")
-    st.stop()  # Stop dashboard from rendering
+        st.stop()  # Only stop for Reports page
 # ===== END NAVIGATION =====
 
 
