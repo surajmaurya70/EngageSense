@@ -65,6 +65,18 @@ elif st.session_state.current_page == "Reports":
     st.button("Generate Report")
 
 
+# PAGE ROUTING
+if st.session_state.current_page == "Dashboard":
+    pass
+elif st.session_state.current_page == "Students":
+    st.title("👥 Students")
+    st.info("Student table shown below")
+elif st.session_state.current_page == "Reports":
+    st.title("📈 Reports")
+    st.selectbox("Report Type", ["Summary", "Anomaly"])
+    st.button("Generate Report")
+
+
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
