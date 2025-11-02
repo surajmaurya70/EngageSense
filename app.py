@@ -60,85 +60,67 @@ if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
         
-        # File uploader for CSV
-        uploaded_file = st.file_uploader("📂 Upload students_engagement.csv", type="csv")
+        # Sample student data - replace with your actual data source
+        students = [
+            {"id": "STU2024001", "name": "Rahul Sharma", "score": 85.5, "logins": 45, "hours": 23.5, "status": "Active"},
+            {"id": "STU2024002", "name": "Priya Singh", "score": 92.3, "logins": 52, "hours": 28.2, "status": "Active"},
+            {"id": "STU2024003", "name": "Amit Kumar", "score": 67.8, "logins": 32, "hours": 15.8, "status": "At Risk"},
+            {"id": "STU2024004", "name": "Sneha Patel", "score": 78.9, "logins": 41, "hours": 21.3, "status": "Active"},
+            {"id": "STU2024005", "name": "Vikram Reddy", "score": 58.2, "logins": 28, "hours": 12.5, "status": "At Risk"},
+            {"id": "STU2024006", "name": "Anjali Verma", "score": 88.7, "logins": 48, "hours": 25.9, "status": "Active"},
+        ]
         
-        if uploaded_file:
-            df = pd.read_csv(uploaded_file)
-            
-            # Summary metrics
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Total Students", len(df))
-            with col2:
-                active = len(df[df['anomaly_flag'] == 'Active'])
-                st.metric("Active", active)
-            with col3:
-                at_risk = len(df[df['anomaly_flag'] == 'At Risk'])
-                st.metric("At Risk", at_risk, delta_color="inverse")
-            with col4:
-                avg_score = df['engagement_score'].mean()
-                st.metric("Avg Engagement", f"{avg_score:.2f}")
-            
-            st.divider()
-            
-            # Search and filters
-            col1, col2, col3 = st.columns([2, 2, 1])
-            with col1:
-                search = st.text_input("🔍 Search Student ID", key="student_search")
-            with col2:
-                status_filter = st.selectbox("Status", ["All", "Active", "At Risk"])
-            with col3:
-                sort_by = st.selectbox("Sort", ["Score ↓", "Score ↑", "ID"])
-            
-            # Apply filters
-            filtered_df = df.copy()
-            if search:
-                filtered_df = filtered_df[filtered_df['student_id'].astype(str).str.contains(search, case=False)]
-            if status_filter != "All":
-                filtered_df = filtered_df[filtered_df['anomaly_flag'] == status_filter]
-            
-            # Sort
-            if sort_by == "Score ↓":
-                filtered_df = filtered_df.sort_values('engagement_score', ascending=False)
-            elif sort_by == "Score ↑":
-                filtered_df = filtered_df.sort_values('engagement_score', ascending=True)
-            else:
-                filtered_df = filtered_df.sort_values('student_id')
-            
-            # Display table
-            st.markdown(f"### 📊 Showing {len(filtered_df)} students")
-            display_df = filtered_df[['student_id', 'engagement_score', 'login_count', 
-                                      'time_spent', 'anomaly_flag']].copy()
-            display_df.columns = ['Student ID', 'Engagement', 'Logins', 'Time (hrs)', 'Status']
-            st.dataframe(display_df, use_container_width=True, height=400)
-            
-        else:
-            st.info("👆 Please upload a CSV file to view student data")
-            
-            # Sample CSV download
-            sample_data = """student_id,engagement_score,login_count,time_spent,anomaly_flag
-202401,76.4,12,10.8,Active
-202402,59.8,9,7.1,At Risk
-202403,91.2,17,19.3,Active
-202404,68.5,11,9.2,Active
-202405,45.3,6,4.5,At Risk"""
-            
-            st.download_button(
-                label="📥 Download Sample CSV",
-                data=sample_data,
-                file_name="sample_students.csv",
-                mime="text/csv"
-            )
-            
-            st.markdown("""
-            **Expected CSV format:**
-            - student_id
-            - engagement_score
-            - login_count
-            - time_spent
-            - anomaly_flag (Active/At Risk)
-            """)
+        # Summary metrics
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("📊 Total Students", len(students))
+        with col2:
+            active_count = sum(1 for s in students if s['status'] == 'Active')
+            st.metric("✅ Active", active_count)
+        with col3:
+            at_risk = len(students) - active_count
+            st.metric("⚠️ At Risk", at_risk)
+        with col4:
+            avg_score = sum(s['score'] for s in students) / len(students)
+            st.metric("📈 Avg Score", f"{avg_score:.1f}")
+        
+        st.divider()
+        
+        # Search
+        search = st.text_input("🔍 Search by Student ID or Name", key="student_search")
+        
+        # Filter students
+        filtered = students
+        if search:
+            filtered = [s for s in students if search.lower() in s['id'].lower() or search.lower() in s['name'].lower()]
+        
+        st.markdown(f"### 👨‍🎓 Showing {len(filtered)} Students")
+        
+        # Display student cards
+        for student in filtered:
+            with st.container():
+                col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1.5, 1])
+                
+                with col1:
+                    st.markdown(f"**{student['name']}**")
+                    st.caption(student['id'])
+                
+                with col2:
+                    st.metric("Engagement Score", f"{student['score']:.1f}")
+                
+                with col3:
+                    st.metric("Logins", student['logins'])
+                
+                with col4:
+                    st.metric("Hours", f"{student['hours']:.1f}")
+                
+                with col5:
+                    if student['status'] == "Active":
+                        st.success("✅ Active")
+                    else:
+                        st.warning("⚠️ At Risk")
+                
+                st.divider()
         
         st.stop()  # Stop dashboard from loading
     elif page == "Reports":
