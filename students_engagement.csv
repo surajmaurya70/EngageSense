@@ -1,0 +1,16 @@
+student_id,engagement_score,login_count,time_spent,anomaly_flag
+STU001,85.5,45,23.5,Active
+STU002,92.3,52,28.2,Active
+STU003,67.8,32,15.8,At Risk
+STU004,78.9,41,21.3,Active
+STU005,58.2,28,12.5,At Risk
+STU006,88.7,48,25.9,Active
+STU007,76.4,39,19.7,Active
+STU008,54.1,24,11.3,At Risk
+STU009,91.6,55,30.1,Active
+STU010,82.3,44,22.8,Active
+STU011,63.5,29,14.2,At Risk
+STU012,87.2,47,26.4,Active
+STU013,71.8,36,18.6,Active
+STU014,49.7,22,9.8,At Risk
+STU015,94.1,58,32.5,Active
