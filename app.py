@@ -20,6 +20,11 @@ if not st.session_state.logged_in:
 # ============= END LOGIN =============
 
 
+# ============= NAVBAR =============
+from navbar import show_navbar
+show_navbar()
+
+
 
 # ============= AI MODEL LOADING =============
 @st.cache_resource(show_spinner=False)
@@ -62,17 +67,11 @@ html {{ scroll-behavior: smooth; }}
 @keyframes slideIn {{ from {{ opacity: 0; transform: translateX(-50px); }} to {{ opacity: 1; transform: translateX(0); }} }}
 @keyframes pulse {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.05); }} }}
 
-.main-header {{
-    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
-    padding: 2rem; margin: -1rem -2rem 2rem -2rem;
-    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.4);
-    border-radius: 0 0 24px 24px; animation: slideIn 0.6s ease;
-}}
-.header-content {{ display: flex; align-items: center; gap: 1rem; }}
-.logo {{ width: 60px; height: 60px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; font-weight: 800; color: #1a73e8; box-shadow: 0 6px 12px rgba(0,0,0,0.15); animation: pulse 2s infinite; }}
-.title {{ font-size: 2.25rem; font-weight: 800; color: white; }}
-.subtitle {{ font-size: 1.125rem; color: rgba(255,255,255,0.95); }}
+}
+}
+}
+}
+}
 
 h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2rem !important;
     margin: 2.5rem 0 1.5rem 0 !important; padding-left: 1.5rem; border-left: 6px solid #1a73e8; animation: fadeInUp 0.5s ease; }}
@@ -102,16 +101,7 @@ h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2re
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="main-header">
-    <div class="header-content">
-        <div class="logo">ES</div>
-        <div>
-            <div class="title">EngageSense Analytics</div>
-            <div class="subtitle">🤖 AI-Powered Student Engagement Platform</div>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+
 
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
