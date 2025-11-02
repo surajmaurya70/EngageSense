@@ -37,7 +37,19 @@ page = st.radio("", ["Dashboard", "Students", "Reports"],
 st.session_state.current_page = page
 
 if page != "Dashboard":
-    st.stop()  # Stop rendering dashboard if other page selected
+    if page == "Students":
+        st.title("👥 Student Management")
+        st.info("📊 Student data table will appear below once implemented")
+        # Student table code will render after this
+    elif page == "Reports":
+        st.title("📈 Reports & Analytics")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.selectbox("Report Type", ["Summary", "Anomaly", "Cluster"])
+        with col2:
+            st.selectbox("Course", ["All", "AI101", "ML201"])
+        st.button("📥 Generate Report")
+    st.stop()  # Stop dashboard from rendering
 # ===== END NAVIGATION =====
 
 
