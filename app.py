@@ -7,6 +7,19 @@ from scroll_helper import scroll_to_element
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 
+# ============= LOGIN SYSTEM =============
+from login import show_login_page
+
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    show_login_page()
+    st.stop()
+
+# ============= END LOGIN =============
+
+
 
 # ============= AI MODEL LOADING =============
 @st.cache_resource(show_spinner=False)
@@ -168,6 +181,14 @@ if df is not None and model is not None:
         df['anomaly_flag'] = 'Active'
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
+    
+    # Logout button
+    with st.sidebar:
+        st.markdown("---")
+        if st.button("🚪 Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.rerun()
+
     st.markdown("## 📊 Dashboard Overview")
     st.caption("👆 Click buttons to filter and scroll")
     
