@@ -10,7 +10,7 @@ def show_login_page():
         
         /* White background */
         .stApp {
-            background: #f8f9fa;
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -25,36 +25,49 @@ def show_login_page():
         
         /* Main heading */
         .main-heading {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
-            color: #1a1f36;
+            color: #3d4f5d;
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        
+        /* Subtitle */
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+        
+        /* Input container */
+        .stTextInput {
+            margin-bottom: 20px;
         }
         
         /* Input labels */
-        .input-label {
-            color: #6366f1;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            margin-left: 4px;
-            display: block;
+        .stTextInput > label {
+            color: #6b7280 !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+            display: block !important;
         }
         
         /* Input fields */
         .stTextInput > div > div > input {
             background: white !important;
-            border: 1.5px solid #e0e4e8 !important;
+            border: 1.5px solid #6366f1 !important;
             border-radius: 8px !important;
             padding: 14px 16px !important;
             font-size: 15px !important;
-            color: #1a1f36 !important;
+            color: #6b7280 !important;
             transition: all 0.2s ease !important;
         }
         
         .stTextInput > div > div > input::placeholder {
-            color: #9ca3af !important;
+            color: #d1d5db !important;
         }
         
         .stTextInput > div > div > input:focus {
@@ -62,12 +75,30 @@ def show_login_page():
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
         }
         
-        /* Hide default labels */
-        .stTextInput > label {
-            display: none;
+        /* Remember me and Forgot password row */
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 25px 0;
         }
         
-        /* Sign Up button */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .forgot-password {
+            color: #6b7280;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Login button */
         .stButton > button {
             width: 100%;
             background: #6366f1 !important;
@@ -79,7 +110,6 @@ def show_login_page():
             font-weight: 600 !important;
             cursor: pointer !important;
             transition: all 0.2s ease !important;
-            margin-top: 10px !important;
         }
         
         .stButton > button:hover {
@@ -88,24 +118,20 @@ def show_login_page():
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
         }
         
-        /* Bottom text */
-        .bottom-text {
-            text-align: center;
-            margin-top: 25px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        
-        .bottom-text a {
-            color: #6366f1;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        
         /* Error styling */
         .stAlert {
             border-radius: 8px !important;
             font-size: 13px !important;
+        }
+        
+        /* Checkbox styling */
+        .stCheckbox {
+            margin: 0 !important;
+        }
+        
+        .stCheckbox > label {
+            color: #6b7280 !important;
+            font-size: 14px !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -115,33 +141,28 @@ def show_login_page():
     
     with col2:
         # Main heading
-        st.markdown('<div class="main-heading">Sign Up to EngageSense</div>', unsafe_allow_html=True)
+        st.markdown('<div class="main-heading">Login to your<br>account.</div>', unsafe_allow_html=True)
+        
+        # Subtitle
+        st.markdown('<div class="subtitle">Hello, welcome back to your account</div>', unsafe_allow_html=True)
         
         # Email input
-        st.markdown('<label class="input-label">E-mail</label>', unsafe_allow_html=True)
-        email = st.text_input("Email", placeholder="example@email.com", 
-                             key="email", label_visibility="collapsed")
+        email = st.text_input("E-mail", placeholder="example@email.com", key="email")
         
         # Password input
-        st.markdown('<label class="input-label">Password</label>', unsafe_allow_html=True)
-        password = st.text_input("Password", type="password", placeholder="••••••••", 
-                                key="password", label_visibility="collapsed")
+        password = st.text_input("Password", type="password", placeholder="Your Password", key="password")
         
-        # Sign Up button
-        if st.button("Sign Up", use_container_width=True):
+        # Remember me checkbox and Forgot password
+        col_check, col_forgot = st.columns([1, 1])
+        with col_check:
+            remember_me = st.checkbox("Remember me")
+        with col_forgot:
+            st.markdown('<div style="text-align: right; color: #6b7280; font-size: 14px; margin-top: 8px;">Forgot Password?</div>', unsafe_allow_html=True)
+        
+        # Login button
+        if st.button("Login", use_container_width=True):
             if email == "admin@engagesense.com" and password == "admin123":
                 st.session_state.logged_in = True
                 st.rerun()
             else:
                 st.error("❌ Invalid credentials. Please try again.")
-        
-        # Bottom text
-        st.markdown('''
-        <div class="bottom-text">
-            Have an account? <a href="#">Sign in</a>
-        </div>
-        ''', unsafe_allow_html=True)
-
-
-
-
