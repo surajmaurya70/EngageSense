@@ -59,8 +59,8 @@ st.radio("", ["Dashboard", "Students", "Reports"],
 if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
-        st.markdown("### Complete Student Analytics")
-        
+        # Remove st.stop() - let dashboard data load below
+
         # Use same data loading as Dashboard (lines below will use the data)
         st.stop()  # This allows dashboard data loading to work
     elif page == "Reports":
