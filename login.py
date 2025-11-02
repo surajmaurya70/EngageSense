@@ -45,15 +45,7 @@ def show_login_page():
             }
         }
         
-        /* Heading styles */
-        .tagline {
-            color: #6366f1;
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
+        /* Main heading */
         .main-heading {
             font-size: 32px;
             font-weight: 700;
@@ -146,8 +138,7 @@ def show_login_page():
     with col2:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
         
-        # Heading
-        st.markdown('<div class="tagline">Start your journey</div>', unsafe_allow_html=True)
+        # Main heading only
         st.markdown('<div class="main-heading">Sign Up to EngageSense</div>', unsafe_allow_html=True)
         
         # Email input
@@ -176,5 +167,6 @@ def show_login_page():
         ''', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
+
 
 
