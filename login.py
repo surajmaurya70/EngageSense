@@ -140,11 +140,11 @@ def show_login_page():
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        # Main heading
-        st.markdown('<div class="main-heading">Login to your<br>account.</div>', unsafe_allow_html=True)
+        # Main heading - IMPROVED VERSION
+        st.markdown('<div class="main-heading">Welcome to<br>EngageSense</div>', unsafe_allow_html=True)
         
         # Subtitle
-        st.markdown('<div class="subtitle">Hello, welcome back to your account</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitle">Sign in to access your student engagement dashboard</div>', unsafe_allow_html=True)
         
         # Email input
         email = st.text_input("E-mail", placeholder="example@email.com", key="email")
@@ -166,3 +166,4 @@ def show_login_page():
                 st.rerun()
             else:
                 st.error("❌ Invalid credentials. Please try again.")
+
