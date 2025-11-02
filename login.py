@@ -8,100 +8,151 @@ def show_login_page():
         footer {visibility: hidden;}
         header {visibility: hidden;}
         
-        /* Full-screen black background */
+        /* White background */
         .stApp {
-            background: #000000;
+            background: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
-        /* Remove default padding */
+        /* Remove padding */
         .block-container {
             padding: 0 !important;
             max-width: 100% !important;
         }
         
-        /* Login box container */
+        /* Logo at top left */
+        .top-logo {
+            position: fixed;
+            top: 30px;
+            left: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1f36;
+            z-index: 1000;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        /* Login box */
         .login-box {
-            background: #000000;
-            max-width: 350px;
+            background: white;
+            max-width: 450px;
             width: 100%;
+            padding: 50px 45px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Heading styles */
+        .tagline {
+            color: #6366f1;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
             text-align: center;
-            animation: fadeIn 0.6s ease;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* Instagram logo styling */
-        .insta-logo {
-            font-family: 'Billabong', 'Brush Script MT', cursive;
-            font-size: 52px;
-            color: #ffffff;
+        .main-heading {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1f36;
+            text-align: center;
             margin-bottom: 35px;
-            font-weight: 400;
-            letter-spacing: 2px;
         }
         
-        /* Input container */
-        .input-container {
+        /* Input labels */
+        .input-label {
+            color: #6366f1;
+            font-size: 13px;
+            font-weight: 600;
             margin-bottom: 8px;
+            margin-left: 4px;
+            display: block;
         }
         
         /* Input fields */
         .stTextInput > div > div > input {
-            background: #121212 !important;
-            border: 1px solid #262626 !important;
-            border-radius: 3px !important;
-            padding: 12px 10px !important;
-            font-size: 14px !important;
-            color: #ffffff !important;
-            transition: border-color 0.2s ease !important;
+            background: white !important;
+            border: 1.5px solid #e0e4e8 !important;
+            border-radius: 8px !important;
+            padding: 14px 16px !important;
+            font-size: 15px !important;
+            color: #1a1f36 !important;
+            transition: all 0.2s ease !important;
         }
         
         .stTextInput > div > div > input::placeholder {
-            color: #8e8e8e !important;
+            color: #9ca3af !important;
         }
         
         .stTextInput > div > div > input:focus {
-            border-color: #555555 !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
         }
         
-        /* Hide labels */
+        /* Hide default labels */
         .stTextInput > label {
             display: none;
         }
         
-        /* Login button */
+        /* Sign Up button */
         .stButton > button {
             width: 100%;
-            background: #0095f6 !important;
+            background: #6366f1 !important;
             color: white !important;
             border: none !important;
             border-radius: 8px !important;
-            padding: 10px !important;
-            font-size: 14px !important;
+            padding: 14px !important;
+            font-size: 16px !important;
             font-weight: 600 !important;
             cursor: pointer !important;
-            transition: background 0.2s ease !important;
-            margin-top: 12px !important;
+            transition: all 0.2s ease !important;
+            margin-top: 10px !important;
         }
         
         .stButton > button:hover {
-            background: #1877f2 !important;
+            background: #4f46e5 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
         }
         
         /* OR divider */
         .divider {
             display: flex;
             align-items: center;
-            margin: 25px 0 20px 0;
-            color: #8e8e8e;
+            margin: 28px 0;
+            color: #6b7280;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
         }
         
         .divider::before,
@@ -109,106 +160,127 @@ def show_login_page():
             content: '';
             flex: 1;
             height: 1px;
-            background: #262626;
+            background: #e5e7eb;
         }
         
         .divider span {
-            padding: 0 18px;
+            padding: 0 16px;
         }
         
-        /* Facebook login button */
-        .fb-login {
-            color: #385185;
-            font-size: 14px;
-            font-weight: 600;
+        /* Social login buttons */
+        .social-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            background: white;
+            border: 1.5px solid #e0e4e8;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            margin-bottom: 20px;
+            transition: all 0.2s ease;
+            font-size: 22px;
         }
         
-        /* Forgot password */
-        .forgot-password {
-            color: #00376b;
-            font-size: 12px;
-            margin-top: 18px;
+        .social-btn:hover {
+            border-color: #6366f1;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
         }
         
-        /* Signup box */
-        .signup-box {
-            background: #121212;
-            border: 1px solid #262626;
-            padding: 20px;
-            margin-top: 10px;
-            border-radius: 3px;
-            color: #ffffff;
+        /* Bottom text */
+        .bottom-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #6b7280;
             font-size: 14px;
         }
         
-        .signup-box a {
-            color: #0095f6;
+        .bottom-text a {
+            color: #6366f1;
             font-weight: 600;
             text-decoration: none;
         }
         
-        /* Error styling */
+        /* Error/Info styling */
         .stAlert {
-            background: #121212 !important;
-            border: 1px solid #ed4956 !important;
-            color: #ed4956 !important;
-            border-radius: 3px !important;
-            font-size: 12px !important;
-            padding: 8px !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
         }
         
-        /* Info box (demo credentials) */
         div[data-testid="stInfo"] {
-            background: #121212 !important;
-            border: 1px solid #262626 !important;
-            color: #a8a8a8 !important;
-            border-radius: 3px !important;
-            font-size: 12px !important;
+            background: #eff6ff !important;
+            border: 1px solid #bfdbfe !important;
+            color: #1e40af !important;
+            border-radius: 8px !important;
+            margin-top: 20px !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Center everything
-    col1, col2, col3 = st.columns([1, 1, 1])
+    # Logo at top left
+    st.markdown('''
+    <div class="top-logo">
+        <div class="logo-icon">📊</div>
+        <span>EngageSense</span>
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    # Center container
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        # Logo
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown('<div class="insta-logo">EngageSense</div>', unsafe_allow_html=True)
         
-        # Input fields
-        username = st.text_input("Username", placeholder="Phone number, username or email address", 
-                                  key="username", label_visibility="collapsed")
-        password = st.text_input("Password", type="password", placeholder="Password", 
-                                  key="password", label_visibility="collapsed")
+        # Heading
+        st.markdown('<div class="tagline">Start your journey</div>', unsafe_allow_html=True)
+        st.markdown('<div class="main-heading">Sign Up to EngageSense</div>', unsafe_allow_html=True)
         
-        # Login button
-        if st.button("Log in", use_container_width=True):
-            if username == "admin" and password == "admin123":
+        # Email input
+        st.markdown('<label class="input-label">E-mail</label>', unsafe_allow_html=True)
+        email = st.text_input("Email", placeholder="example@email.com", 
+                             key="email", label_visibility="collapsed")
+        
+        # Password input
+        st.markdown('<label class="input-label">Password</label>', unsafe_allow_html=True)
+        password = st.text_input("Password", type="password", placeholder="••••••••", 
+                                key="password", label_visibility="collapsed")
+        
+        # Sign Up button
+        if st.button("Sign Up", use_container_width=True):
+            if email == "admin@engagesense.com" and password == "admin123":
                 st.session_state.logged_in = True
                 st.rerun()
             else:
-                st.error("Incorrect credentials. Please try again.")
+                st.error("❌ Invalid credentials. Please try again.")
         
         # OR divider
-        st.markdown('<div class="divider"><span>OR</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider"><span>or sign up with</span></div>', unsafe_allow_html=True)
         
-        # Facebook login (non-functional, just for UI)
-        st.markdown('<div class="fb-login">🔵 Log in with Facebook</div>', unsafe_allow_html=True)
-        
-        # Forgot password
-        st.markdown('<div class="forgot-password">Forgotten your password?</div>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Signup box
+        # Social login buttons
         st.markdown('''
-        <div class="signup-box">
-            Don't have an account? <a href="#">Sign up</a>
+        <div class="social-buttons">
+            <div class="social-btn">📘</div>
+            <div class="social-btn">🔍</div>
+            <div class="social-btn">🍎</div>
         </div>
         ''', unsafe_allow_html=True)
         
-        # Demo credentials (optional - remove if not needed)
-        st.info("💡 Demo: admin / admin123")
+        # Bottom text
+        st.markdown('''
+        <div class="bottom-text">
+            Have an account? <a href="#">Sign in</a>
+        </div>
+        ''', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Demo credentials
+        st.info("💡 **Demo Login**  \nadmin@engagesense.com / admin123")
+
