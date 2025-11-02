@@ -59,7 +59,7 @@ t = get_theme()
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-* {{ font-family: 'Inter', sans-serif; }}
+* {{ font-family: 'Inter', sans-serif; }}}
 .stApp {{ background: {t['bg']}; scroll-behavior: smooth; }}
 html {{ scroll-behavior: smooth; }}
 
