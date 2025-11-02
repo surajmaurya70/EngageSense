@@ -59,64 +59,10 @@ st.radio("", ["Dashboard", "Students", "Reports"],
 if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
+        st.markdown("### Complete Student Analytics")
         
-        # Load and display student data
-        try:
-            df = pd.read_csv('students_engagement.csv')
-            
-            # Summary stats
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Total Students", len(df))
-            with col2:
-                active = len(df[df['anomaly_flag'] == 'Active'])
-                st.metric("Active Students", active, delta=f"{active/len(df)*100:.1f}%")
-            with col3:
-                avg_score = df['engagement_score'].mean()
-                st.metric("Avg Engagement", f"{avg_score:.2f}")
-            with col4:
-                at_risk = len(df[df['anomaly_flag'] == 'At Risk'])
-                st.metric("At Risk", at_risk, delta=f"-{at_risk/len(df)*100:.1f}%", delta_color="inverse")
-            
-            st.divider()
-            
-            # Filters
-            col1, col2, col3 = st.columns([2, 2, 1])
-            with col1:
-                search = st.text_input("🔍 Search Student ID", placeholder="Enter student ID...")
-            with col2:
-                status_filter = st.selectbox("Filter by Status", ["All", "Active", "At Risk"])
-            with col3:
-                sort_by = st.selectbox("Sort by", ["Engagement ↓", "Engagement ↑", "Name"])
-            
-            # Apply filters
-            filtered_df = df.copy()
-            if search:
-                filtered_df = filtered_df[filtered_df['student_id'].str.contains(search, case=False)]
-            if status_filter != "All":
-                filtered_df = filtered_df[filtered_df['anomaly_flag'] == status_filter]
-            
-            # Sort
-            if sort_by == "Engagement ↓":
-                filtered_df = filtered_df.sort_values('engagement_score', ascending=False)
-            elif sort_by == "Engagement ↑":
-                filtered_df = filtered_df.sort_values('engagement_score', ascending=True)
-            
-            # Display table
-            st.markdown(f"### 📋 Showing {len(filtered_df)} students")
-            
-            # Format dataframe for display
-            display_df = filtered_df[['student_id', 'engagement_score', 'login_count', 
-                                      'time_spent', 'anomaly_flag']].copy()
-            display_df.columns = ['Student ID', 'Engagement Score', 'Login Count', 
-                                  'Time Spent (hrs)', 'Status']
-            display_df['Engagement Score'] = display_df['Engagement Score'].round(2)
-            display_df['Time Spent (hrs)'] = display_df['Time Spent (hrs)'].round(1)
-            
-            st.dataframe(display_df, use_container_width=True, height=500)
-            
-        except FileNotFoundError:
-            st.error("❌ students_engagement.csv file not found!")
+        # Use same data loading as Dashboard (lines below will use the data)
+        st.stop()  # This allows dashboard data loading to work
     elif page == "Reports":
         st.title("📈 Reports & Analytics")
         col1, col2 = st.columns(2)
