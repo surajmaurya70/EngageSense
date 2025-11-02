@@ -5,31 +5,8 @@ import plotly.express as px
 from datetime import datetime
 from scroll_helper import scroll_to_element
 
-st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
-
-# ============= LOGIN SYSTEM =============
-from login import show_login_page
-
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    show_login_page()
-    st.stop()
-
-# ============= END LOGIN =============
-
-
-# ============= NAVBAR =============
-from navbar import show_navbar
-show_navbar()
-
-
-
-# ============= AI MODEL LOADING =============
 @st.cache_resource(show_spinner=False)
 def load_ai_models():
-    """Load trained ML models for anomaly detection and clustering"""
     try:
         isolation_forest = joblib.load('isolation_forest.pkl')
         kmeans_model = joblib.load('kmeans_model.pkl')
@@ -39,6 +16,21 @@ def load_ai_models():
 
 isolation_forest, kmeans_model = load_ai_models()
 
+st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+
+from login import show_login_page
+
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    show_login_page()
+    st.stop()
+
+from navbar import show_navbar
+show_navbar()
+
+st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
@@ -59,7 +51,7 @@ t = get_theme()
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-* {{ font-family: 'Inter', sans-serif; }}}
+* {{ font-family: 'Inter', sans-serif; }}
 .stApp {{ background: {t['bg']}; scroll-behavior: smooth; }}
 html {{ scroll-behavior: smooth; }}
 
@@ -67,11 +59,17 @@ html {{ scroll-behavior: smooth; }}
 @keyframes slideIn {{ from {{ opacity: 0; transform: translateX(-50px); }} to {{ opacity: 1; transform: translateX(0); }} }}
 @keyframes pulse {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.05); }} }}
 
-}
-}
-}
-}
-}
+.main-header {{
+    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+    padding: 2rem; margin: -1rem -2rem 2rem -2rem;
+    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.4);
+    border-radius: 0 0 24px 24px; animation: slideIn 0.6s ease;
+}}
+.header-content {{ display: flex; align-items: center; gap: 1rem; }}
+.logo {{ width: 60px; height: 60px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800; color: #1a73e8; box-shadow: 0 6px 12px rgba(0,0,0,0.15); animation: pulse 2s infinite; }}
+.title {{ font-size: 2.25rem; font-weight: 800; color: white; }}
+.subtitle {{ font-size: 1.125rem; color: rgba(255,255,255,0.95); }}
 
 h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2rem !important;
     margin: 2.5rem 0 1.5rem 0 !important; padding-left: 1.5rem; border-left: 6px solid #1a73e8; animation: fadeInUp 0.5s ease; }}
@@ -101,7 +99,16 @@ h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2re
 """, unsafe_allow_html=True)
 
 st.markdown("""
-
+<div class="main-header">
+    <div class="header-content">
+        <div class="logo">ES</div>
+        <div>
+            <div class="title">EngageSense Analytics</div>
+            <div class="subtitle">🤖 AI-Powered Student Engagement Platform</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
@@ -147,7 +154,6 @@ def load_data():
 model = load_model()
 df = load_data()
 
-# AI CLUSTERING & ANOMALY PREDICTIONS
 if isolation_forest is not None and kmeans_model is not None:
     features = ['login_count', 'time_spent', 'quiz_attempts']
     X = df[features]
@@ -171,14 +177,6 @@ if df is not None and model is not None:
         df['anomaly_flag'] = 'Active'
     df['custom_risk'] = df['engagement_score'] < alert_threshold
     
-    
-    # Logout button
-    with st.sidebar:
-        st.markdown("---")
-        if st.button("🚪 Logout", use_container_width=True):
-            st.session_state.logged_in = False
-            st.rerun()
-
     st.markdown("## 📊 Dashboard Overview")
     st.caption("👆 Click buttons to filter and scroll")
     
@@ -226,19 +224,6 @@ if df is not None and model is not None:
             st.rerun()
     
     # Quick Insights
-    if 'engagement_level' in df.columns:
-        st.markdown("## 🤖 AI Model Insights")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            avg = df[['login_count', 'time_spent', 'quiz_attempts']].mean(axis=1).mean()
-            st.metric("Avg Engagement", f"{avg:.2f}")
-        with c2:
-            anom = (df['anomaly'] == -1).mean() * 100
-            st.metric("Anomaly Rate", f"{anom:.1f}%")
-        with c3:
-            st.metric("Clusters", "3 Groups")
-        st.markdown("---")
-    
     st.markdown("## 📈 Quick Insights")
     col1, col2, col3 = st.columns(3)
     with col1:
