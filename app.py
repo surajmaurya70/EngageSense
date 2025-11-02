@@ -30,6 +30,17 @@ if not st.session_state.logged_in:
 from navbar import show_navbar
 show_navbar()
 
+# ===== SIMPLE PAGE NAVIGATION =====
+page = st.radio("", ["Dashboard", "Students", "Reports"], 
+                horizontal=True, key="page_selector",
+                label_visibility="collapsed")
+st.session_state.current_page = page
+
+if page != "Dashboard":
+    st.stop()  # Stop rendering dashboard if other page selected
+# ===== END NAVIGATION =====
+
+
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
 
