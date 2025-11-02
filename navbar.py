@@ -1,34 +1,13 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 def show_navbar():
     # Session state for page navigation
     if 'page' not in st.session_state:
         st.session_state.page = 'Dashboard'
     
-    # Clickable navigation with invisible buttons positioned ABOVE HTML
-    col1, col2, col3, col4, col5, col6, col7 = st.columns([1.5, 0.8, 0.8, 0.8, 2, 0.8, 0.8])
-    
-    with col2:
-        if st.button("📊", key="dash", help="Dashboard", use_container_width=True):
-            st.session_state.page = "Dashboard"
-            st.rerun()
-    with col3:
-        if st.button("👥", key="stud", help="Students", use_container_width=True):
-            st.session_state.page = "Students"
-            st.rerun()
-    with col4:
-        if st.button("📈", key="rep", help="Reports", use_container_width=True):
-            st.session_state.page = "Reports"
-            st.rerun()
-    with col6:
-        if st.button("⚙️", key="filt", help="Filters", use_container_width=True):
-            st.toast("⚙️ Filters panel!")
-    with col7:
-        if st.button("🔔", key="notif", help="Notifications", use_container_width=True):
-            st.toast("🔔 3 new alerts!")
-    
-    # Beautiful HTML navbar (visual only, buttons above are functional)
-    st.markdown("""
+    # JavaScript-based clickable navbar
+    components.html("""
     <style>
     .navbar {
         background: white;
@@ -37,9 +16,9 @@ def show_navbar():
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid #e5e5e5;
-        margin: -6rem -2rem 2rem -2rem;
-        position: relative;
-        z-index: 1;
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
     .navbar-left {
         display: flex;
@@ -81,10 +60,18 @@ def show_navbar():
         border-radius: 8px;
         font-weight: 500;
         color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+    }
+    .nav-tab:hover {
+        background: #f5f5f5;
+        color: #1a1a1a;
     }
     .nav-tab.active {
         color: #1a1a1a;
         font-weight: 600;
+        background: #f5f5f5;
     }
     .navbar-right {
         display: flex;
@@ -96,10 +83,16 @@ def show_navbar():
         border-radius: 10px;
         border: 1px solid #e5e5e5;
         background: white;
+        cursor: pointer;
         font-weight: 500;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        user-select: none;
+        transition: all 0.2s;
+    }
+    .nav-btn:hover {
+        background: #f5f5f5;
     }
     .notification-badge {
         position: relative;
@@ -132,17 +125,14 @@ def show_navbar():
                 </div>
             </div>
             <div class="navbar-tabs">
-                <div class="nav-tab active">Dashboard</div>
-                <div class="nav-tab">Students</div>
-                <div class="nav-tab">Reports</div>
+                <div class="nav-tab" onclick="alert('Dashboard clicked! (navigation coming soon)')">Dashboard</div>
+                <div class="nav-tab" onclick="alert('Students clicked! (navigation coming soon)')">Students</div>
+                <div class="nav-tab" onclick="alert('Reports clicked! (navigation coming soon)')">Reports</div>
             </div>
         </div>
         <div class="navbar-right">
-            <div class="nav-btn">⚙️ Filters</div>
-            <div class="nav-btn notification-badge">🔔</div>
+            <div class="nav-btn" onclick="alert('⚙️ Filters panel!')">⚙️ Filters</div>
+            <div class="nav-btn notification-badge" onclick="alert('🔔 3 new alerts!')">🔔</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
-    
-    # Show current page indicator
-    st.caption(f"📍 Current page: **{st.session_state.page}**")
+    """, height=100)
