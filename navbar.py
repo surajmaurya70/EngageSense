@@ -1,6 +1,33 @@
 import streamlit as st
 
 def show_navbar():
+    # Initialize session state for page navigation
+    if 'page' not in st.session_state:
+        st.session_state.page = 'Dashboard'
+    
+    # Navigation buttons ABOVE the navbar HTML
+    col1, col2, col3, col4, col5, col6, col7 = st.columns([1.5, 0.8, 0.8, 0.8, 2, 0.8, 0.8])
+    
+    with col2:
+        if st.button("📊", key="dash_click", help="Dashboard"):
+            st.session_state.page = "Dashboard"
+            st.rerun()
+    with col3:
+        if st.button("👥", key="students_click", help="Students"):
+            st.session_state.page = "Students"
+            st.rerun()
+    with col4:
+        if st.button("📈", key="reports_click", help="Reports"):
+            st.session_state.page = "Reports"
+            st.rerun()
+    with col6:
+        if st.button("⚙️", key="filters_click", help="Filters"):
+            st.toast("Filters panel opened!")
+    with col7:
+        if st.button("🔔", key="notif_click", help="Notifications"):
+            st.toast("3 new notifications!")
+    
+    # Beautiful navbar HTML (without Export)
     st.markdown("""
     <style>
     .navbar {
@@ -10,10 +37,9 @@ def show_navbar():
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid #e5e5e5;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        margin: -1rem -2rem 2rem -2rem;
+        margin: -5rem -2rem 2rem -2rem;
+        position: relative;
+        z-index: 1;
     }
     .navbar-left {
         display: flex;
@@ -82,11 +108,6 @@ def show_navbar():
         align-items: center;
         gap: 0.5rem;
     }
-    .nav-btn.primary {
-        background: #667eea;
-        color: white;
-        border: none;
-    }
     .notification-badge {
         position: relative;
     }
@@ -126,7 +147,6 @@ def show_navbar():
         <div class="navbar-right">
             <div class="nav-btn">⚙️ Filters</div>
             <div class="nav-btn notification-badge">🔔</div>
-            <div class="nav-btn primary">⬇️ Export</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
