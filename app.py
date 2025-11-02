@@ -5,7 +5,7 @@ import plotly.express as px
 from datetime import datetime
 from scroll_helper import scroll_to_element
 
-st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
+st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
