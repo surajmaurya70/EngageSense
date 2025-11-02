@@ -3,32 +3,53 @@ import pandas as pd
 import joblib
 import plotly.express as px
 from datetime import datetime
-from scroll_helper import scroll_to_element
+import io
 
 st.set_page_config(page_title="EngageSense Analytics", page_icon="📊", layout="wide")
 
+# Initialize session states
 if 'theme' not in st.session_state:
     st.session_state.theme = 'light'
 if 'selected_filter' not in st.session_state:
     st.session_state.selected_filter = 'All'
-if 'clicked_metric' not in st.session_state:
-    st.session_state.clicked_metric = None
-if 'trigger_scroll' not in st.session_state:
-    st.session_state.trigger_scroll = False
+if 'show_anomalies' not in st.session_state:
+    st.session_state.show_anomalies = True
+if 'refresh_rate' not in st.session_state:
+    st.session_state.refresh_rate = 'Medium'
+if 'show_modal' not in st.session_state:
+    st.session_state.show_modal = False
+if 'selected_student' not in st.session_state:
+    st.session_state.selected_student = None
 
+# Theme function
 def get_theme():
     if st.session_state.theme == 'dark':
         return {'bg': '#1a1a1a', 'surface': '#2d2d2d', 'text': '#e0e0e0', 'secondary': '#9e9e9e', 'border': '#404040'}
     return {'bg': '#f8f9fa', 'surface': '#ffffff', 'text': '#202124', 'secondary': '#5f6368', 'border': '#e0e0e0'}
 
+# Export function
+def export_to_csv(df, filter_status='All'):
+    if filter_status == 'Active':
+        export_df = df[df['engagement_score'] >= 50]
+    elif filter_status == 'At-Risk':
+        export_df = df[df['engagement_score'] < 50]
+    else:
+        export_df = df
+    
+    csv_buffer = io.StringIO()
+    export_df.to_csv(csv_buffer, index=False)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"engagement_data_{filter_status.lower()}_{timestamp}.csv"
+    return csv_buffer.getvalue(), filename
+
 t = get_theme()
 
+# Custom CSS with animations
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 * {{ font-family: 'Inter', sans-serif; }}
 .stApp {{ background: {t['bg']}; scroll-behavior: smooth; }}
-html {{ scroll-behavior: smooth; }}
 
 @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 @keyframes slideIn {{ from {{ opacity: 0; transform: translateX(-50px); }} to {{ opacity: 1; transform: translateX(0); }} }}
@@ -46,239 +67,214 @@ html {{ scroll-behavior: smooth; }}
 .title {{ font-size: 2.25rem; font-weight: 800; color: white; }}
 .subtitle {{ font-size: 1.125rem; color: rgba(255,255,255,0.95); }}
 
-h2 {{ color: {t['text']} !important; font-weight: 800 !important; font-size: 2rem !important;
-    margin: 2.5rem 0 1.5rem 0 !important; padding-left: 1.5rem; border-left: 6px solid #1a73e8; animation: fadeInUp 0.5s ease; }}
+div[data-testid="stMetric"] {{
+    background: {t['surface']}; padding: 1.5rem; border-radius: 16px; 
+    border: 2px solid {t['border']}; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease; animation: fadeInUp 0.5s ease;
+}}
+div[data-testid="stMetric"]:hover {{
+    transform: translateY(-5px); box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+    border-color: #1a73e8; cursor: pointer;
+}}
 
-[data-testid="stMetric"] {{ background: {t['surface']}; border: 2px solid {t['border']}; border-radius: 20px;
-    padding: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: fadeInUp 0.7s ease; position: relative; overflow: hidden; }}
-[data-testid="stMetric"]::before {{ content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-    background: linear-gradient(90deg, #1a73e8, #34a853, #fbbc04, #ea4335); }}
-[data-testid="stMetric"]:hover {{ transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(26, 115, 232, 0.35); border-color: #1a73e8; }}
-[data-testid="stMetric"] label {{ color: {t['secondary']} !important; font-size: 1rem !important; 
-    font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.5px; }}
-[data-testid="stMetric"] [data-testid="stMetricValue"] {{ color: {t['text']} !important; font-size: 3rem !important; font-weight: 900 !important; }}
-
-.stTabs [data-baseweb="tab-list"] {{ background: {t['surface']}; padding: 0.75rem; border-radius: 16px; 
-    border: 2px solid {t['border']}; animation: fadeInUp 0.8s ease; }}
-.stTabs [data-baseweb="tab"] {{ color: {t['secondary']}; border-radius: 12px; padding: 1rem 2rem; font-weight: 700; transition: all 0.3s ease; }}
-.stTabs [data-baseweb="tab"]:hover {{ background: rgba(26, 115, 232, 0.1); transform: translateY(-2px); }}
-.stTabs [aria-selected="true"] {{ background: linear-gradient(135deg, #1a73e8, #4285f4) !important; color: white !important; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4); }}
-
-[data-testid="stSidebar"] {{ background: {t['surface']}; border-right: 2px solid {t['border']}; }}
-[data-testid="stSidebar"] h3 {{ color: {t['text']} !important; font-weight: 700 !important; }}
-[data-testid="stSidebar"] label {{ color: {t['text']} !important; }}
-.stDataFrame {{ border: 2px solid {t['border']}; border-radius: 16px; overflow: hidden; animation: fadeInUp 1s ease; }}
-#MainMenu, footer, header {{ visibility: hidden; }}
+button[kind="primary"] {{
+    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%) !important;
+    border: none !important; color: white !important;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4) !important;
+    transition: all 0.3s ease !important;
+}}
+button[kind="primary"]:hover {{
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(26, 115, 232, 0.5) !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
+# Header
+st.markdown(f"""
 <div class="main-header">
     <div class="header-content">
         <div class="logo">ES</div>
         <div>
-            <div class="title">EngageSense Analytics</div>
-            <div class="subtitle">🤖 AI-Powered Student Engagement Platform</div>
+            <div class="title">📊 EngageSense Analytics</div>
+            <div class="subtitle">AI-Powered Student Engagement Insights</div>
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
+# Enhanced Settings Sidebar
 with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    st.markdown("**🎨 Theme**")
+    st.markdown("<h2 style='text-align: center; color: #1a73e8;'>⚙️ Settings</h2>", unsafe_allow_html=True)
+    st.divider()
+    
+    # Theme Toggle
+    st.markdown("### 🎨 Appearance")
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🌞 Light", key="light_theme", use_container_width=True, type="primary" if st.session_state.theme == 'light' else "secondary"):
+        if st.button("🌞 Light", use_container_width=True, type="primary" if st.session_state.theme == 'light' else "secondary"):
             st.session_state.theme = 'light'
             st.rerun()
     with col2:
-        if st.button("🌙 Dark", key="dark_theme", use_container_width=True, type="primary" if st.session_state.theme == 'dark' else "secondary"):
+        if st.button("🌙 Dark", use_container_width=True, type="primary" if st.session_state.theme == 'dark' else "secondary"):
             st.session_state.theme = 'dark'
             st.rerun()
-    st.caption(f"Active: **{'🌞 Light Mode' if st.session_state.theme == 'light' else '🌙 Dark Mode'}**")
-    st.markdown("---")
-    st.markdown("### 📅 Time Range")
-    time_range = st.selectbox("Period", ["Last 7 Days", "Last 30 Days", "Last 90 Days", "All Time"])
-    st.markdown("---")
-    st.markdown("### 🔍 Manual Filters")
-    data_source = st.radio("Data", ["CSV", "MySQL"], horizontal=True)
-    min_score = st.slider("Min Score", 0.0, 10.0, 0.0)
-    search_id = st.text_input("Search", placeholder="S007")
-    st.markdown("---")
-    st.markdown("### 🔔 Alerts")
-    alert_threshold = st.slider("At-Risk Threshold", 0.0, 10.0, 5.0, 0.5)
-    st.markdown("---")
-    st.markdown("### 📊 Display")
-    show_charts = st.checkbox("Show Charts", value=True)
-    chart_height = st.slider("Height", 300, 600, 400, 50)
-    st.markdown("---")
-    st.info(f"📅 {datetime.now().strftime('%b %d, %Y at %I:%M %p')}")
-
-@st.cache_resource
-def load_model():
-    try: return joblib.load('isolation_forest.pkl')
-    except: return None
-
-@st.cache_data
-def load_data():
-    try: return pd.read_csv('student_engagement.csv')
-    except: return None
-
-model = load_model()
-df = load_data()
-
-if df is not None and model is not None:
-    if 'engagement_score' not in df.columns:
-        df['engagement_score'] = (df['login_count'] * 0.25 + (df['time_spent'] / 60) * 0.25 +
-            df['quiz_attempts'] * 0.2 + df['forum_posts'] * 0.15 + (df['assignment_score'] / 100) * 0.15 * 10)
-    try:
-        df['anomaly'] = model.predict(df[['login_count', 'time_spent', 'quiz_attempts']].values)
-        df['anomaly_flag'] = df['anomaly'].apply(lambda x: 'At Risk' if x == -1 else 'Active')
-    except:
-        df['anomaly'] = 1
-        df['anomaly_flag'] = 'Active'
-    df['custom_risk'] = df['engagement_score'] < alert_threshold
     
-    st.markdown("## 📊 Dashboard Overview")
-    st.caption("👆 Click buttons to filter and scroll")
+    st.divider()
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    anomaly_count = (df['anomaly'] == -1).sum()
-    custom_risk_count = df['custom_risk'].sum()
-    active_count = (df['anomaly_flag'] == 'Active').sum()
-    avg_score = df['engagement_score'].mean()
+    # Anomaly Toggle
+    st.markdown("### 🚨 Detection")
+    show_anomalies = st.toggle("Show Anomalies", value=st.session_state.show_anomalies)
+    st.session_state.show_anomalies = show_anomalies
     
-    with col1:
-        st.metric("Total Students", len(df), "+5")
-        if st.button("📚 View All", key="m1", use_container_width=True):
-            st.session_state.selected_filter = 'All'
-            st.session_state.clicked_metric = 'Total Students (All 40)'
-            st.session_state.trigger_scroll = True
-            st.rerun()
-    with col2:
-        st.metric("AI At Risk", anomaly_count, f"{(anomaly_count/len(df)*100):.0f}%")
-        if st.button("⚠️ At Risk", key="m2", use_container_width=True):
-            st.session_state.selected_filter = 'At Risk'
-            st.session_state.clicked_metric = f'At Risk ({anomaly_count})'
-            st.session_state.trigger_scroll = True
-            st.rerun()
-    with col3:
-        st.metric("Below Threshold", custom_risk_count, f"{(custom_risk_count/len(df)*100):.0f}%")
-        if st.button("🔴 Below", key="m3", use_container_width=True):
-            st.session_state.selected_filter = 'Below Threshold'
-            st.session_state.clicked_metric = f'Below ({custom_risk_count})'
-            st.session_state.trigger_scroll = True
-            st.rerun()
-    with col4:
-        st.metric("Active Students", active_count, f"{(active_count/len(df)*100):.0f}%")
-        if st.button("✅ Active", key="m4", use_container_width=True):
-            st.session_state.selected_filter = 'Active'
-            st.session_state.clicked_metric = f'Active ({active_count})'
-            st.session_state.trigger_scroll = True
-            st.rerun()
-    with col5:
-        above_avg = (df['engagement_score'] >= avg_score).sum()
-        st.metric("Avg Engagement", f"{avg_score:.2f}", "+0.3")
-        if st.button("📊 Above Avg", key="m5", use_container_width=True):
-            st.session_state.selected_filter = 'Above Average'
-            st.session_state.clicked_metric = f'Above Avg ({above_avg})'
-            st.session_state.trigger_scroll = True
-            st.rerun()
+    st.divider()
     
-    # Quick Insights
-    st.markdown("## 📈 Quick Insights")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        top_student = df.loc[df['engagement_score'].idxmax()]
-        st.info(f"**🎯 Top Performer**\n\n{top_student['student_id']} - {top_student['engagement_score']:.2f}")
-    with col2:
-        bottom_student = df.loc[df['engagement_score'].idxmin()]
-        st.warning(f"**⚠️ Needs Attention**\n\n{bottom_student['student_id']} - {bottom_student['engagement_score']:.2f}")
-    with col3:
-        active_pct = (active_count / len(df) * 100)
-        st.success(f"**✅ Active Rate**\n\n{active_pct:.1f}% ({active_count})")
+    # Refresh Rate
+    st.markdown("### 🔄 Refresh")
+    refresh_rate = st.selectbox("Rate", ['Low (30s)', 'Medium (15s)', 'High (5s)'], index=1)
+    st.session_state.refresh_rate = refresh_rate
     
-    # Visual Analytics
-    if show_charts:
-        st.markdown("## 📈 Visual Analytics")
-        tab1, tab2, tab3, tab4 = st.tabs(["📊 Distribution", "🔍 Anomaly", "📈 Activity", "🎯 Performance"])
+    st.divider()
+    
+    # Export
+    st.markdown("### 📥 Export")
+    if st.button("📊 Download CSV", use_container_width=True, type="primary"):
+        st.session_state.trigger_export = True
+    
+    st.divider()
+    
+    # About
+    with st.expander("ℹ️ About"):
+        st.markdown("""
+        **EngageSense v1.0**
         
-        with tab1:
-            col1, col2 = st.columns(2)
-            with col1:
-                fig1 = px.histogram(df, x='engagement_score', nbins=20, title='📊 Engagement Distribution')
-                fig1.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-                fig1.update_traces(marker_color='#1a73e8')
-                st.plotly_chart(fig1, use_container_width=True, key="c1")
-            with col2:
-                counts = df['anomaly_flag'].value_counts()
-                fig2 = px.pie(values=counts.values, names=counts.index, title='🥧 Status Distribution', hole=0.4)
-                fig2.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-                fig2.update_traces(marker=dict(colors=['#34a853', '#ea4335']))
-                st.plotly_chart(fig2, use_container_width=True, key="c2")
+        AI-Powered Analytics
         
-        with tab2:
-            fig3 = px.scatter(df, x='time_spent', y='engagement_score', color='anomaly_flag',
-                size='login_count', hover_data=['student_id'], title='🔍 Time vs Engagement',
-                color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
-            fig3.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig3, use_container_width=True, key="c3")
+        **Developer:** Suraj Maurya
         
-        with tab3:
-            fig4 = px.bar(df.nlargest(15, 'login_count'), x='student_id', y='login_count',
-                title='📈 Top 15 by Logins', color='login_count', color_continuous_scale='Blues')
-            fig4.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig4, use_container_width=True, key="c4")
-        
-        with tab4:
-            fig5 = px.scatter(df, x='quiz_attempts', y='assignment_score', size='engagement_score', color='anomaly_flag',
-                hover_data=['student_id'], title='🎯 Quiz vs Assignment',
-                color_discrete_map={'Active': '#34a853', 'At Risk': '#ea4335'})
-            fig5.update_layout(plot_bgcolor='white', paper_bgcolor='white', height=chart_height, margin=dict(l=40, r=40, t=60, b=40))
-            st.plotly_chart(fig5, use_container_width=True, key="c5")
-    
-    # STUDENT DATA
-    st.markdown("## 📋 Student Data Explorer")
-    
-    # FAST SCROLL
-    if st.session_state.trigger_scroll:
-        scroll_to_element()
-        st.session_state.trigger_scroll = False
-    
-    if st.session_state.clicked_metric:
-        st.success(f"✨ {st.session_state.clicked_metric}")
-    
-    filtered = df.copy()
-    if st.session_state.selected_filter == 'At Risk':
-        filtered = filtered[filtered['anomaly_flag'] == 'At Risk']
-    elif st.session_state.selected_filter == 'Active':
-        filtered = filtered[filtered['anomaly_flag'] == 'Active']
-    elif st.session_state.selected_filter == 'Below Threshold':
-        filtered = filtered[filtered['custom_risk'] == True]
-    elif st.session_state.selected_filter == 'Above Average':
-        filtered = filtered[filtered['engagement_score'] >= avg_score]
-    
-    filtered = filtered[filtered['engagement_score'] >= min_score]
-    if search_id:
-        filtered = filtered[filtered['student_id'].astype(str).str.contains(search_id, case=False)]
-    filtered = filtered.sort_values('engagement_score', ascending=False)
-    
-    st.info(f"📊 {len(filtered)} of {len(df)} students")
-    st.dataframe(filtered, use_container_width=True, height=400)
-    
-    csv = filtered.to_csv(index=False).encode('utf-8')
-    st.download_button(f"📥 Download {len(filtered)}", csv,
-        f'data_{datetime.now().strftime("%Y%m%d_%H%M")}.csv', 'text/csv', use_container_width=True)
+        © 2025
+        """)
 
+# Load data
+try:
+    df = pd.read_csv('student_engagement.csv')
+except:
+    st.error("Data file not found!")
+    st.stop()
+
+# Calculate metrics
+total_students = len(df)
+active_students = len(df[df['engagement_score'] >= 50])
+at_risk_students = len(df[df['engagement_score'] < 50])
+
+# Enhanced Metric Cards with Click Actions
+st.markdown("## 📈 Key Metrics")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("📊 Total Students", total_students)
+    if st.button("View All", key="btn_all", use_container_width=True):
+        st.session_state.selected_filter = 'All'
+        st.rerun()
+
+with col2:
+    st.metric("✅ Active Students", active_students)
+    if st.button("View Active", key="btn_active", use_container_width=True):
+        st.session_state.selected_filter = 'Active'
+        st.rerun()
+
+with col3:
+    st.metric("⚠️ At-Risk Students", at_risk_students)
+    if st.button("View At-Risk", key="btn_risk", use_container_width=True):
+        st.session_state.selected_filter = 'At-Risk'
+        st.rerun()
+
+# Filter display
+if st.session_state.selected_filter != 'All':
+    st.info(f"🔍 Showing: **{st.session_state.selected_filter}** students")
+
+# Apply filter
+if st.session_state.selected_filter == 'Active':
+    filtered_df = df[df['engagement_score'] >= 50]
+elif st.session_state.selected_filter == 'At-Risk':
+    filtered_df = df[df['engagement_score'] < 50]
 else:
-    st.error("❌ Failed to load data")
+    filtered_df = df
 
+# Export functionality
+if st.session_state.get('trigger_export', False):
+    csv_data, filename = export_to_csv(df, st.session_state.selected_filter)
+    st.download_button(
+        label="⬇️ Download CSV",
+        data=csv_data,
+        file_name=filename,
+        mime="text/csv",
+        use_container_width=True
+    )
+    st.session_state.trigger_export = False
+
+# Interactive Editable Table
+st.markdown("## 📋 Student Data")
+
+if 'edited_df' not in st.session_state:
+    st.session_state.edited_df = filtered_df.copy()
+
+edited_data = st.data_editor(
+    st.session_state.edited_df,
+    num_rows="dynamic",
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "engagement_score": st.column_config.ProgressColumn(
+            "Engagement",
+            min_value=0,
+            max_value=100,
+        ),
+    }
+)
+
+col_a, col_b = st.columns([1, 1])
+with col_a:
+    if st.button("💾 Save Changes", type="primary"):
+        st.session_state.edited_df = edited_data
+        st.success("✅ Changes saved!")
+
+with col_b:
+    if st.button("🔄 Reset Data"):
+        st.session_state.edited_df = filtered_df.copy()
+        st.rerun()
+
+# Tabs for analytics
+tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🚨 Anomalies", "📈 Activity"])
+
+with tab1:
+    st.markdown("### Engagement Distribution")
+    fig = px.histogram(filtered_df, x='engagement_score', nbins=20, 
+                       title="Engagement Score Distribution",
+                       color_discrete_sequence=['#1a73e8'])
+    st.plotly_chart(fig, use_container_width=True)
+
+with tab2:
+    if st.session_state.show_anomalies:
+        st.markdown("### Anomaly Detection")
+        anomaly_df = filtered_df[filtered_df['engagement_score'] < 30]
+        st.dataframe(anomaly_df, use_container_width=True)
+    else:
+        st.info("Anomaly detection is disabled in settings")
+
+with tab3:
+    st.markdown("### Activity Metrics")
+    fig = px.scatter(filtered_df, x='login_count', y='time_spent',
+                     size='engagement_score', color='engagement_score',
+                     title="Login vs Time Spent",
+                     color_continuous_scale='Blues')
+    st.plotly_chart(fig, use_container_width=True)
+
+# Footer
+st.markdown("---")
 st.markdown(f"""
-<div style="margin-top: 4rem; padding: 3rem; text-align: center; background: {t['surface']};
-     border-radius: 24px; border: 2px solid {t['border']}; animation: fadeInUp 1.2s ease;">
-    <p style="color: {t['text']}; font-size: 1rem;">EngageSense © 2025 | Developed by <strong style="color: #1a73e8;">Suraj Maurya</strong></p>
-    <p style="color: {t['secondary']}; font-size: 0.9rem;">Empowering Educators through Data & AI 💡</p>
+<div style='text-align: center; color: {t['secondary']}; padding: 2rem 0;'>
+    <p style='font-size: 1rem; margin: 0.5rem 0;'>EngageSense © 2025 | Developed by <strong style='color: #1a73e8;'>Suraj Maurya</strong></p>
+    <p style='font-size: 0.9rem; margin: 0.75rem 0;'>Empowering Educators through Data & AI 💡</p>
 </div>
 """, unsafe_allow_html=True)
