@@ -59,7 +59,72 @@ st.radio("", ["Dashboard", "Students", "Reports"],
 if page != "Dashboard":
     if page == "Students":
         st.title("👥 Student Management")
-        pass  # Let dashboard data load and display
+        
+        # File uploader for CSV
+        uploaded_file = st.file_uploader("📂 Upload students_engagement.csv", type="csv")
+        
+        if uploaded_file:
+            df = pd.read_csv(uploaded_file)
+            
+            # Summary metrics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Total Students", len(df))
+            with col2:
+                active = len(df[df['anomaly_flag'] == 'Active'])
+                st.metric("Active", active)
+            with col3:
+                at_risk = len(df[df['anomaly_flag'] == 'At Risk'])
+                st.metric("At Risk", at_risk, delta_color="inverse")
+            with col4:
+                avg_score = df['engagement_score'].mean()
+                st.metric("Avg Engagement", f"{avg_score:.2f}")
+            
+            st.divider()
+            
+            # Search and filters
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                search = st.text_input("🔍 Search Student ID", key="student_search")
+            with col2:
+                status_filter = st.selectbox("Status", ["All", "Active", "At Risk"])
+            with col3:
+                sort_by = st.selectbox("Sort", ["Score ↓", "Score ↑", "ID"])
+            
+            # Apply filters
+            filtered_df = df.copy()
+            if search:
+                filtered_df = filtered_df[filtered_df['student_id'].astype(str).str.contains(search, case=False)]
+            if status_filter != "All":
+                filtered_df = filtered_df[filtered_df['anomaly_flag'] == status_filter]
+            
+            # Sort
+            if sort_by == "Score ↓":
+                filtered_df = filtered_df.sort_values('engagement_score', ascending=False)
+            elif sort_by == "Score ↑":
+                filtered_df = filtered_df.sort_values('engagement_score', ascending=True)
+            else:
+                filtered_df = filtered_df.sort_values('student_id')
+            
+            # Display table
+            st.markdown(f"### 📊 Showing {len(filtered_df)} students")
+            display_df = filtered_df[['student_id', 'engagement_score', 'login_count', 
+                                      'time_spent', 'anomaly_flag']].copy()
+            display_df.columns = ['Student ID', 'Engagement', 'Logins', 'Time (hrs)', 'Status']
+            st.dataframe(display_df, use_container_width=True, height=400)
+            
+        else:
+            st.info("👆 Please upload a CSV file to view student data")
+            st.markdown("""
+            **Expected CSV format:**
+            - student_id
+            - engagement_score
+            - login_count
+            - time_spent
+            - anomaly_flag (Active/At Risk)
+            """)
+        
+        st.stop()  # Stop dashboard from loading
     elif page == "Reports":
         st.title("📈 Reports & Analytics")
         col1, col2 = st.columns(2)
